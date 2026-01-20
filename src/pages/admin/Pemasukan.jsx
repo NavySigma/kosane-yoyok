@@ -24,9 +24,9 @@ export default function Pemasukan() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#EBEBDF] p-6 pt-20 ">
+    <div className="min-h-screen bg-[#EBEBDF] p-35 pt-20 ">
       {/* HEADER CONTAINER */}
-      <div className="bg-[#EBEBDF] rounded-[32px] p-8 flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+      <div className="bg-[#EBEBDF] rounded-[32px] p-2 flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
         
         {/* LEFT PANEL: TOTAL & FORM */}
         <div className="lg:w-[40%] space-y-6">
