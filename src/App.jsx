@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/admin/Login";
 import Register from "./pages/admin/Register";
+import LoginUser from "./pages/user/LoginUser";
+import RegisterUser from "./pages/user/RegisterUser";
 import Dashboard from "./pages/admin/Dashboard";
 import Pemasukan from "./pages/admin/Pemasukan";
 import Pengeluaran from "./pages/admin/Pengeluaran";
@@ -18,6 +20,10 @@ export default function App() {
         {/* PUBLIC */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route path="/login-user" element={<LoginUser />} />
+<Route path="/register-user" element={<RegisterUser />} />
+
 
         {/* PROTECTED + LAYOUT */}
         <Route
