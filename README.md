@@ -9,4 +9,4 @@ Ngatur kamar 🛏️
 Ngatur penyewa 👤
 Ngatur pembayaran 💰
 
-![Preview Kosane Yoyok](assets/img/monyetijo.jpg)
+![Preview Kosane Yoyok](assets/img/monyetijo.jpg)   
