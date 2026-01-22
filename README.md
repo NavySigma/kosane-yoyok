@@ -1,12 +1,12 @@
-Selamat datang di Kosane Yoyok,
-aplikasi yang dibuat supaya kami bisa makan beras,
-terdata dengan rapi dan tidak ghaib pas ditagih
+<h1>Selamat datang di Kosane Yoyok</h1>
+<h4>aplikasi yang dibuat supaya kami bisa makan beras,
+terdata dengan rapi dan tidak ghaib pas ditagih</h4>
 
-<h1>Opo to iki?</h1>
+<h2>Opo to iki?</h2>
 Kosane Yoyok adalah sistem manajemen kos-kosan yang membantu:
 
-Ngatur kamar 🛏️
-Ngatur penyewa 👤
-Ngatur pembayaran 💰
+Ngatur kamar 🛏️ <br>
+Ngatur penyewa 👤<br>
+Ngatur pembayaran 💰<br>
 
 ![Preview Kosane Yoyok](assets/img/monyetijo.jpg)   
