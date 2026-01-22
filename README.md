@@ -2,7 +2,7 @@ Selamat datang di Kosane Yoyok,
 aplikasi yang dibuat supaya kami bisa makan beras,
 terdata dengan rapi dan tidak ghaib pas ditagih
 
-Opo to iki?
+<h1>Opo to iki?</h1>
 Kosane Yoyok adalah sistem manajemen kos-kosan yang membantu:
 
 Ngatur kamar 🛏️
