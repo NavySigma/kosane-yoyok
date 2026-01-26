@@ -121,11 +121,11 @@ export default function Kamar() {
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-bold mb-2 ml-1 text-gray-500">Metode Pembayaran (Data dari Pemasukan)</label>
-                  <input name="metodeBayar" type="text" value={form.metodeBayar} readOnly className="w-full bg-gray-100 border-2 border-gray-200 rounded-full px-5 py-2 text-sm outline-none cursor-not-allowed text-gray-500" />
+                  <input name="metodeBayar" type="text" value={form.metodeBayar} readOnly className="w-full bg-gray-100 border-2 border-gray-200 rounded-full px-5 py-2 text-sm outline-none cursor-not-allowed text-black" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold mb-2 ml-1 text-gray-500">Total Bayar (Data dari Pemasukan)</label>
-                  <input name="totalBayar" type="text" value={form.totalBayar} readOnly className="w-full bg-gray-100 border-2 border-gray-200 rounded-full px-5 py-2 text-sm outline-none cursor-not-allowed text-gray-500" />
+                  <input name="totalBayar" type="text" value={form.totalBayar} readOnly className="w-full bg-gray-100 border-2 border-gray-200 rounded-full px-5 py-2 text-sm outline-none cursor-not-allowed text-black" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold mb-2 ml-1">Catatan</label>
@@ -175,7 +175,7 @@ export default function Kamar() {
               <div>
                 <label className="block text-xs font-bold mb-1 ml-1">Tanggal Penyewaan</label>
                 <input 
-                  type="text" 
+                  type="date" 
                   className="w-full bg-transparent border-2 border-[#1E1B6D] rounded-xl px-3 py-1.5 text-sm outline-none" 
                   value={addForm.tanggalPenyewaan}
                   onChange={(e) => setAddForm({...addForm, tanggalPenyewaan: e.target.value})}
