@@ -3,20 +3,28 @@ import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [userName, setUserName] = useState("Admin");
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
   const location = useLocation(); // Penting untuk trigger animasi sapaan
 
   // Mengambil nama user dari localStorage saat komponen dimuat
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUserName(userData.nama || "Admin");
-      } catch (error) {
-        console.error("Gagal mengambil data user:", error);
-      }
+
+    if (!storedUser) return;
+
+    try {
+      const userData = JSON.parse(storedUser);
+
+      // Prioritas nama
+      setUserName(
+        userData.nama_profile ||
+        userData.username ||
+        userData.name ||
+        "Pengguna"
+      );
+    } catch (error) {
+      console.error("Gagal parsing data user:", error);
     }
   }, []);
 

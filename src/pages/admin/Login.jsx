@@ -14,18 +14,44 @@ export default function Login() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.username || !formData.password) {
-      alert("Username dan password wajib diisi");
-      return;
-    }
+  const [errorMsg, setErrorMsg] = useState('');
 
-    localStorage.setItem("isLogin", "true");
-    const userData = { nama: formData.username };
-    localStorage.setItem("user", JSON.stringify(userData));
-    navigate("/admin/dashboard");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+console.log("Submitting:");
+    try {
+      const res = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nama_profile: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(data.message || 'Login gagal');
+        return;
+      }
+
+      // simpan user
+      localStorage.setItem("isLogin", "true");
+      localStorage.setItem("user", JSON.stringify(data.data));
+
+      navigate("/admin/dashboard");
+    } catch (err) {
+      alert("Server error");
+      console.error(err);
+    }
   };
+
+
 
   return (
     <div className="min-h-screen w-full flex bg-[#EBEBDF] overflow-hidden font-sans relative">
@@ -145,6 +171,11 @@ export default function Login() {
               >
                 Login
               </button>
+              {errorMsg && (
+                <h2 style={{ color: 'red', marginTop: '10px', fontSize: '20px' }}>
+                  {errorMsg}
+                </h2>
+              )}
             </div>
           </form>
         </div>
