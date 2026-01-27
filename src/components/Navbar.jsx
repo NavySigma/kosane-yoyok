@@ -137,7 +137,7 @@ export default function Navbar() {
       {/* PANEL PROFIL KANAN */}
       {showProfile && (
         <div
-          className="fixed inset-0 z-50 flex justify-end items-start pt-28 pr-10"
+          className="fixed inset-0 z-10 flex justify-end items-start pt-28 pr-11 bg-black/30"
           onClick={() => setShowProfile(false)}
         >
           <div
