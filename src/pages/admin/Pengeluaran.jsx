@@ -24,27 +24,16 @@ export default function Pengeluaran() {
 
     setTransaksi([
       ...transaksi,
-      {
-        id: Date.now(),
-        tanggal: form.tanggal,
-        deskripsi: form.deskripsi,
-        total: Number(form.total),
-      },
+      { id: Date.now(), ...form, total: Number(form.total) },
     ]);
-
     resetForm();
   };
 
   // EDIT
   const handleEdit = () => {
     if (!selectedId) return alert("Pilih data dulu");
-
     const data = transaksi.find((t) => t.id === selectedId);
-    setForm({
-      tanggal: data.tanggal,
-      deskripsi: data.deskripsi,
-      total: data.total,
-    });
+    setForm(data);
     setIsEdit(true);
   };
 
@@ -61,7 +50,6 @@ export default function Pengeluaran() {
   // HAPUS
   const handleHapus = () => {
     if (!selectedId) return alert("Pilih data dulu");
-
     setTransaksi(transaksi.filter((t) => t.id !== selectedId));
     resetForm();
   };
@@ -73,103 +61,103 @@ export default function Pengeluaran() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EBEBDF] p-35 pt-20">
-      <div className="bg-[#EBEBDF] rounded-[32px] p-2 flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
-        {/* LEFT PANEL */}
-        <div className="lg:w-[40%] space-y-6">
-          <div className="bg-red-700 text-white rounded-[24px] p-6 shadow-lg">
-            <p className="text-sm opacity-80 font-medium mb-1">
-              Total Pengeluaran Bulan Ini
-            </p>
-            <h2 className="text-3xl font-extrabold">
-              Rp. {totalPengeluaran.toLocaleString("id-ID")}
+    <div className="min-h-screen bg-[#EBEBDF] px-20 py-16">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-7xl mx-auto">
+        {/* LEFT */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-red-700 rounded-2xl p-6 text-white shadow">
+            <p className="text-sm opacity-80">Total Pengeluaran</p>
+            <h2 className="text-3xl font-bold mt-1">
+              Rp {totalPengeluaran.toLocaleString("id-ID")}
             </h2>
           </div>
 
-          <div className="bg-[#F7F5EC] rounded-[24px] p-6 shadow-md">
-            <h3 className="font-bold text-[#1E1B6D] mb-6 text-lg">
-              Tambah Pengeluaran
+          <div className="bg-[#F7F5EC] rounded-2xl p-6 shadow space-y-5">
+            <h3 className="font-bold text-[#1E1B6D] text-lg">
+              Form Pengeluaran
             </h3>
 
-            <div className="space-y-4">
-              <input
-                type="date"
-                className="w-full rounded-full px-5 py-2.5"
-                value={form.tanggal}
-                onChange={(e) => setForm({ ...form, tanggal: e.target.value })}
-              />
+            <input
+              type="date"
+              className="w-full rounded-full px-5 py-3"
+              value={form.tanggal}
+              onChange={(e) => setForm({ ...form, tanggal: e.target.value })}
+            />
 
-              <input
-                type="text"
-                placeholder="Jenis pengeluaran"
-                className="w-full rounded-full px-5 py-2.5"
-                value={form.deskripsi}
-                onChange={(e) =>
-                  setForm({ ...form, deskripsi: e.target.value })
-                }
-              />
+            <input
+              type="text"
+              className="w-full rounded-full px-5 py-3"
+              placeholder="Deskripsi"
+              value={form.deskripsi}
+              onChange={(e) =>
+                setForm({ ...form, deskripsi: e.target.value })
+              }
+            />
 
-              <input
-                type="number"
-                placeholder="Rp. 0"
-                className="w-full rounded-full px-5 py-2.5"
-                value={form.total}
-                onChange={(e) => setForm({ ...form, total: e.target.value })}
-              />
-            </div>
+            <input
+              type="number"
+              className="w-full rounded-full px-5 py-3"
+              placeholder="Total"
+              value={form.total}
+              onChange={(e) => setForm({ ...form, total: e.target.value })}
+            />
 
-            <div className="flex gap-3 mt-8">
-              <button
-                onClick={handleEdit}
-                className="flex-1 py-2.5 rounded-full bg-[#1E1B6D] text-white"
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={isEdit ? handleUpdate : handleSimpan}
-                className="flex-1 py-2.5 rounded-full bg-[#0db134] text-white"
-              >
-                {isEdit ? "Update" : "Simpan"}
-              </button>
-            </div>
+            <button
+              onClick={isEdit ? handleUpdate : handleSimpan}
+              className="w-full py-3 rounded-full bg-[#0db134] text-white font-bold text-lg"
+            >
+              {isEdit ? "Update Data" : "Simpan Data"}
+            </button>
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="lg:w-[60%] bg-[#F7F5EC] rounded-[32px] p-8 shadow-md">
-          <h3 className="font-bold text-[#1E1B6D] mb-6 text-lg">
+        {/* RIGHT */}
+        <div className="lg:col-span-3 bg-[#F7F5EC] rounded-2xl p-8 shadow">
+          <h3 className="font-bold text-[#1E1B6D] text-lg mb-6">
             Riwayat Pengeluaran
           </h3>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {transaksi.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setSelectedId(item.id)}
-                className={`flex justify-between p-3 rounded-2xl cursor-pointer ${
+                className={`relative flex justify-between items-center px-5 py-4 rounded-xl cursor-pointer transition ${
                   selectedId === item.id
-                    ? "bg-[#F1F3FF]"
-                    : "bg-[#1E1B6D] text-white"
+                    ? "bg-[#E6E8FF]"
+                    : "bg-white hover:bg-gray-100"
                 }`}
               >
+                
+
                 <div>
-                  <span className="text-xs font-semibold">{item.tanggal}</span>
                   <p className="font-semibold">{item.deskripsi}</p>
-                  <p className="text-xs font-bold">
-                    Rp {item.total.toLocaleString("id-ID")}
-                  </p>
+                  <p className="text-xs text-gray-500">{item.tanggal}</p>
                 </div>
 
-                <input type="radio" checked={selectedId === item.id} readOnly />
+                <p className="font-bold text-sm">
+                  Rp {item.total.toLocaleString("id-ID")}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end mt-8">
+          <div className="flex justify-end gap-3 mt-8">
+            <button
+              onClick={resetForm}
+              className="px-6 py-2 rounded-full bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEdit}
+              className="px-6 py-2 rounded-full bg-[#1E1B6D] text-white"
+            >
+              Edit
+            </button>
             <button
               onClick={handleHapus}
-              className="px-10 py-2.5 rounded-full bg-red-700 text-white"
+              className="px-6 py-2 rounded-full bg-red-600 text-white"
             >
               Hapus
             </button>
