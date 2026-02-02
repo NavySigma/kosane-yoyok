@@ -1,0 +1,4 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/NavySigma/kosane-yoyok.git
+	branch = iki-frontend
