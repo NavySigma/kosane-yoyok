@@ -61,7 +61,7 @@ export default function Navbar() {
       </style>
 
       <div className="flex items-center justify-between w-full">
-        {/* SAPAAN KIRI */}
+        {/* SAPAAN */}
         <div
           key={location.pathname}
           className="bg-[#1E1B6D] text-white px-5 py-1.5 rounded-full shadow-lg flex items-center gap-3 animate-sapaan"
@@ -78,21 +78,21 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* NAV TENGAH */}
+        {/* NAVBAR */}
         <div className="absolute left-1/2 -translate-x-1/2 bg-[#F7F5EC]/70 backdrop-blur-md rounded-full px-2 py-1.5 shadow-xl flex items-center gap-2 border border-white/50">
-          <NavLink to="/dashboard" className={navClass}>
+          <NavLink to="/admin/dashboard" className={navClass}>
             <img src="/home.png" className="w-5 h-5" /> Beranda
           </NavLink>
-          <NavLink to="/pemasukan" className={navClass}>
+          <NavLink to="/admin/pemasukan" className={navClass}>
             <img src="/pemasukan.png" className="w-5 h-5" /> Pemasukan
           </NavLink>
-          <NavLink to="/pengeluaran" className={navClass}>
+          <NavLink to="/admin/pengeluaran" className={navClass}>
             <img src="/pengeluaran.png" className="w-5 h-5" /> Pengeluaran
           </NavLink>
-          <NavLink to="/riwayat" className={navClass}>
+          <NavLink to="/admin/riwayat" className={navClass}>
             <img src="/history.png" className="w-5 h-5" /> Riwayat
           </NavLink>
-          <NavLink to="/kamar" className={navClass}>
+          <NavLink to="/admin/kamar" className={navClass}>
             <img src="/kamaricon.png" className="w-5 h-5" /> Kamar
           </NavLink>
 
@@ -119,7 +119,7 @@ export default function Navbar() {
                 </button>
                 <button
                   onClick={() => {
-                    localStorage.removeItem("user");
+                    localStorage.clear();
                     navigate("/login");
                   }}
                   className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-semibold"
@@ -134,7 +134,7 @@ export default function Navbar() {
         <div className="w-[200px] hidden lg:block"></div>
       </div>
 
-      {/* PANEL PROFIL KANAN */}
+      {/* PANEL PROFIL */}
       {showProfile && (
         <div
           className="fixed inset-0 z-10 flex justify-end items-start pt-28 pr-11 bg-black/30"

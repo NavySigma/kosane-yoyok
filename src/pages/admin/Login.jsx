@@ -26,7 +26,6 @@ export default function Login() {
 
     const { username, password } = formData;
 
-    // ❌ VALIDASI
     if (!username || !password) {
       setError("Username dan password wajib diisi.");
       return;
@@ -42,7 +41,6 @@ export default function Login() {
       return;
     }
 
-    // ✅ SUKSES
     setSuccess("Login berhasil! Mengalihkan ke dashboard...");
 
     localStorage.setItem("isLogin", "true");
@@ -56,24 +54,21 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full flex bg-[#EBEBDF] overflow-hidden font-sans relative">
       
-      {/* CSS INTERNAL UNTUK SEMUA ANIMASI */}
+      {/* CSS ANIMASI */}
       <style>
         {`
           @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
           }
-
           @keyframes fadeInUp {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
           }
-
           @keyframes fadeInLeft {
             0% { opacity: 0; transform: translateX(-50px); }
             100% { opacity: 1; transform: translateX(0); }
           }
-
           .animate-float { animation: float 3s ease-in-out infinite; }
           .animate-fade-left { animation: fadeInLeft 0.8s ease-out forwards; }
           .animate-smooth-in {
@@ -92,12 +87,23 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        {/* 🔽 ALAMAT */}
+        <div className="mt-6">
+          <div className="text-[13px] text-[#1E1B6D] font-bold leading-snug tracking-wide">
+            3P4X+JQ8, Putuk Rejo, Kemanten, Kec. Jabung,<br />
+            Kabupaten Malang, Jawa Timur 65155
+          </div>
+        </div>
       </div>
 
       {/* SVG */}
       <div className="absolute inset-0 pointer-events-none">
         <svg viewBox="0 0 1440 1024" preserveAspectRatio="none" className="w-full h-full">
-          <path d="M650 0C750 200 600 400 680 600C750 800 850 1024 850 1024H1440V0H650Z" fill="#1E1B6D" />
+          <path
+            d="M650 0C750 200 600 400 680 600C750 800 850 1024 850 1024H1440V0H650Z"
+            fill="#1E1B6D"
+          />
         </svg>
       </div>
 
@@ -131,14 +137,12 @@ export default function Login() {
               />
             </div>
 
-            {/* ERROR */}
             {error && (
               <div className="text-red-300 text-sm font-semibold animate-smooth-in">
                 {error}
               </div>
             )}
 
-            {/* SUCCESS */}
             {success && (
               <div className="text-green-300 text-sm font-bold animate-smooth-in">
                 {success}

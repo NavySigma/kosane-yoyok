@@ -95,8 +95,12 @@ export default function Register() {
           </div>
         </div>
 
-        
-      
+        <div className="text-[13px] text-[#1E1B6D] font-bold leading-snug tracking-wide">
+          3P4X+JQ8, Putuk Rejo, Kemanten, Kec. Jabung,
+          <br />
+          Kabupaten Malang, Jawa Timur 65155
+        </div>
+
       </div>
 
       {/* BACKGROUND SVG */}
