@@ -1,28 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function Spinner() {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 gap-3">
+      <div className="w-8 h-8 border-4 border-[#E5E7EB] border-t-[#1E1B6D] rounded-full animate-spin"></div>
+      <span className="text-sm text-gray-400">Memuat data kamar...</span>
+    </div>
+  );
+}
 
 export default function Kamar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedKamar, setSelectedKamar] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [kamarList, setKamarList] = useState([]);
 
-  const [kamarList, setKamarList] = useState([
-    { id: 1, nama: "Kamar - 1", status: "Tersedia", harga: "800.000" },
-    { id: 2, nama: "Kamar - 2", status: "Tersedia", harga: "800.000" },
-    {
-      id: 3,
-      nama: "Kamar - 3",
-      status: "Disewa",
-      harga: "900.000",
-      penyewa: {
-        nama: "Andi",
-        telp: "0812345678",
-        jumlah: "1",
-        metode: "Transfer",
-        catatan: "Bayar di awal",
-      },
-    },
-    { id: 4, nama: "Kamar - 4", status: "Tersedia", harga: "800.000" },
-    { id: 5, nama: "Kamar - 5", status: "Tersedia", harga: "800.000" },
-  ]);
+  useEffect(() => {
+  setLoading(true);
+
+  fetch("http://localhost:8000/api/kamar")
+    .then((res) => res.json())
+    .then((data) => {
+      setKamarList(data);
+    })
+    .catch((err) => {
+      console.error("Gagal ambil data kamar:", err);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+  }, []);
 
   const [form, setForm] = useState({
     namaPenyewa: "",
@@ -35,9 +42,12 @@ export default function Kamar() {
   });
 
   const [addForm, setAddForm] = useState({
-    nama: "",
-    noTelp: "",
-    tanggalPenyewaan: "",
+    nama_penyewa: "",
+    no_telp: "",
+    tanggal_mulai: "",
+    sewa_berapa_bulan: 1,
+    metode_pembayaran: "transfer",
+    catatan: "",
   });
 
   const handleChange = (e) => {
@@ -46,22 +56,50 @@ export default function Kamar() {
   };
 
   const handleSelectKamar = (kamar) => {
-    if (kamar.status === "Disewa") {
-      setSelectedKamar(kamar);
-      setForm({
-        namaPenyewa: kamar.penyewa?.nama || "",
-        noTelp: kamar.penyewa?.telp || "",
-        noKamar: kamar.nama,
-        jumlahPenyewa: kamar.penyewa?.jumlah || "",
-        metodeBayar: kamar.penyewa?.metode || "",
-        totalBayar: kamar.harga,
-        catatan: kamar.penyewa?.catatan || "",
-      });
-    } else {
-      setSelectedKamar(null);
-      setIsModalOpen(true);
-    }
+  if (kamar.status === "Disewa") {
+    setSelectedKamar(kamar);
+  } else {
+    setSelectedKamar(kamar); // simpan kamar yg diklik
+    setIsModalOpen(true);
+  }
   };
+
+  const handleAddChange = (e) => {
+  const { name, value } = e.target;
+  setAddForm((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+  }; 
+
+  const handleSubmitAdd = async () => {
+  try {
+    await fetch("http://localhost:8000/api/sewa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...addForm,
+        id_kamar: selectedKamar.id,
+      }),
+    });
+
+    setIsModalOpen(false);
+    setAddForm({
+      nama_penyewa: "",
+      no_telp: "",
+      tanggal_mulai: "",
+      sewa_berapa_bulan: 1,
+      metode_pembayaran: "transfer",
+      catatan: "",
+    });
+
+    fetchKamar(); // refresh list
+  } catch (err) {
+    console.error(err);
+    alert("Gagal menambahkan penyewa");
+  }
+  };
+
 
   return (
     <div className="min-h-screen bg-[#EFEDE2] p-6 pt-24 text-[#1E1B6D]">
@@ -71,34 +109,47 @@ export default function Kamar() {
           <h2 className="text-xl font-bold mb-6">Status Kamar</h2>
 
           <div className="space-y-5">
-            {kamarList.map((kamar) => (
-              <div
-                key={kamar.id}
-                className="flex justify-between items-center font-semibold"
-              >
-                <span>{kamar.nama}</span>
+  {loading && <Spinner />}
 
-                <span
-                  className={`text-sm ${
-                    kamar.status === "Disewa"
-                      ? "text-red-500"
-                      : "text-green-500"
-                  }`}
-                >
-                  {kamar.status}
-                </span>
+  {!loading && kamarList.length === 0 && (
+    <div className="text-center text-sm text-gray-400 py-6">
+      Tidak ada data kamar
+    </div>
+  )}
 
-                <button
-                  onClick={() => handleSelectKamar(kamar)}
-                  className={`px-5 py-1.5 rounded-full text-xs text-white ${
-                    kamar.status === "Disewa" ? "bg-[#1E1B6D]" : "bg-[#28A745]"
-                  }`}
-                >
-                  {kamar.status === "Disewa" ? "Informasi" : "Tambah"}
-                </button>
-              </div>
-            ))}
-          </div>
+  {!loading &&
+    kamarList.map((kamar) => (
+      <div
+        key={kamar.id}
+        className="flex justify-between items-center font-semibold"
+      >
+        <span>{kamar.nama}</span>
+
+        <span
+          className={`text-sm ${
+            kamar.status === "Disewa"
+              ? "text-red-500"
+              : "text-green-500"
+          }`}
+        >
+          {kamar.status}
+        </span>
+
+        <button
+          onClick={() => handleSelectKamar(kamar)}
+          className={`px-5 py-1.5 rounded-full text-xs text-white ${
+            kamar.status === "Disewa"
+              ? "bg-[#1E1B6D]"
+              : "bg-[#28A745]"
+          }`}
+        >
+          {kamar.status === "Disewa" ? "Informasi" : "Tambah"}
+        </button>
+      </div>
+    ))}
+</div>
+
+
         </div>
 
         {/* PANEL KANAN */}
@@ -196,37 +247,79 @@ export default function Kamar() {
 
       {/* MODAL TAMBAH */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center">
-          <div className="bg-white rounded-3xl p-6 w-[320px]">
-            <h3 className="font-bold mb-4">Tambah Penyewa</h3>
+  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+    <div className="bg-white rounded-3xl p-6 w-[340px] space-y-3">
+      <h3 className="font-bold text-lg">Tambah Penyewa</h3>
 
-            <input
-              placeholder="Nama"
-              className="w-full mb-3 rounded-xl border px-3 py-2"
-            />
-            <input
-              placeholder="No Telp"
-              className="w-full mb-3 rounded-xl border px-3 py-2"
-            />
-            <input
-              type="date"
-              className="w-full mb-4 rounded-xl border px-3 py-2"
-            />
+      <input
+        name="nama_penyewa"
+        placeholder="Nama Penyewa"
+        value={addForm.nama_penyewa}
+        onChange={handleAddChange}
+        className="w-full rounded-xl border px-3 py-2"
+      />
 
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setIsModalOpen(false)} className="text-sm">
-                Batal
-              </button>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-[#1E1B6D] text-white px-6 py-2 rounded-xl"
-              >
-                Tambah
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <input
+        name="no_telp"
+        placeholder="No Telp"
+        value={addForm.no_telp}
+        onChange={handleAddChange}
+        className="w-full rounded-xl border px-3 py-2"
+      />
+
+      <input
+        type="date"
+        name="tanggal_mulai"
+        value={addForm.tanggal_mulai}
+        onChange={handleAddChange}
+        className="w-full rounded-xl border px-3 py-2"
+      />
+
+      <input
+        type="number"
+        name="sewa_berapa_bulan"
+        min="1"
+        value={addForm.sewa_berapa_bulan}
+        onChange={handleAddChange}
+        className="w-full rounded-xl border px-3 py-2"
+      />
+
+      <select
+        name="metode_pembayaran"
+        value={addForm.metode_pembayaran}
+        onChange={handleAddChange}
+        className="w-full rounded-xl border px-3 py-2"
+      >
+        <option value="transfer">Transfer</option>
+        <option value="cash">Cash</option>
+      </select>
+
+      <textarea
+        name="catatan"
+        placeholder="Catatan"
+        value={addForm.catatan}
+        onChange={handleAddChange}
+        className="w-full rounded-xl border px-3 py-2"
+      />
+
+      <div className="flex justify-end gap-3 pt-2">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="text-sm text-gray-500"
+        >
+          Batal
+        </button>
+        <button
+          onClick={handleSubmitAdd}
+          className="bg-[#1E1B6D] text-white px-6 py-2 rounded-xl"
+        >
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -19,7 +19,12 @@ class Kamar extends Model
 
     public function sewaDetail()
     {
-        return $this->hasMany(SewaDetail::class, 'id_kamar_sewadetail');
+        return $this->hasMany(
+            SewaDetail::class,
+            'id_kamar_sewadetail', // foreign key di sewa_detail
+            'id_kamar'             // primary key di kamar
+        );
     }
+
 }
 
