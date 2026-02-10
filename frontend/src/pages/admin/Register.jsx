@@ -11,20 +11,57 @@ export default function Register() {
 
   const navigate = useNavigate();
 
+  const [errors, setErrors] = useState({});
+const [serverError, setServerError] = useState("");
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Password dan Konfirmasi Password tidak cocok!");
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setErrors({});
+  setServerError("");
+
+  if (formData.password !== formData.confirmPassword) {
+    setErrors({ confirmPassword: ["Password tidak sama"] });
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8000/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        nama_profile: formData.username,
+        no_telp_profile: formData.phoneNumber,
+        password: formData.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.errors) {
+        setErrors(data.errors); // validasi Laravel
+      } else {
+        setServerError(data.message || "Register gagal");
+      }
       return;
     }
-    console.log("Register data:", formData);
+
+    // sukses
     navigate("/login");
-  };
+  } catch (err) {
+    setServerError("Server error, coba lagi");
+  }
+};
+
 
   return (
     <div className="min-h-screen w-full flex bg-[#EBEBDF] overflow-hidden font-sans relative">
@@ -116,6 +153,12 @@ export default function Register() {
                 placeholder="Username"
                 className="w-full bg-transparent border-2 border-white/80 rounded-full px-8 py-3.5 text-white outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all placeholder:text-white/50"
               />
+              {errors.nama_profile && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.nama_profile[0]}
+                </p>
+              )}
+
             </div>
 
             {/* Phone Number - Delay 0.3s */}
@@ -131,6 +174,11 @@ export default function Register() {
                 placeholder="Phone Number"
                 className="w-full bg-transparent border-2 border-white/80 rounded-full px-8 py-3.5 text-white outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all placeholder:text-white/50"
               />
+              {errors.no_telp_profile && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.no_telp_profile[0]}
+                </p>
+              )}
             </div>
 
             {/* Password - Delay 0.4s */}
@@ -146,6 +194,11 @@ export default function Register() {
                 placeholder="Password"
                 className="w-full bg-transparent border-2 border-white/80 rounded-full px-8 py-3.5 text-white outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all placeholder:text-white/50"
               />
+              {errors.password && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.password[0]}
+                </p>
+              )}
             </div>
 
             {/* Confirm Password - Delay 0.5s */}
@@ -161,6 +214,11 @@ export default function Register() {
                 placeholder="Confirm Password"
                 className="w-full bg-transparent border-2 border-white/80 rounded-full px-8 py-3.5 text-white outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all placeholder:text-white/50"
               />
+              {errors.confirmPassword && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.confirmPassword[0]}
+                </p>
+              )}
             </div>
 
             {/* Link - Delay 0.6s */}
@@ -188,6 +246,11 @@ export default function Register() {
               >
                 Register
               </button>
+              {serverError && (
+                <div className="text-red-400 text-sm font-medium text-center">
+                  {serverError}
+                </div>
+              )}
             </div>
           </form>
         </div>
