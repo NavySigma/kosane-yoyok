@@ -149,12 +149,12 @@ export default function Login() {
               </div>
             )}
 
-            <div className="text-white text-sm animate-smooth-in" style={{ animationDelay: "0.6s" }}>
+            {/* <div className="text-white text-sm animate-smooth-in" style={{ animationDelay: "0.6s" }}>
               Don't have an account?{" "}
-              <Link to="/register" className="underline">
+              <Link to="/admin/register" className="underline">
                 Register
               </Link>
-            </div>
+            </div> */}
 
             <div className="animate-smooth-in" style={{ animationDelay: "0.8s" }}>
               <button

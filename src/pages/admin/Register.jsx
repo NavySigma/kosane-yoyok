@@ -172,7 +172,7 @@ export default function Register() {
 
             <div className="text-white text-sm">
               Already have an account?{" "}
-              <Link to="/login" className="underline">
+              <Link to="/admin/login" className="underline">
                 Login
               </Link>
             </div>
