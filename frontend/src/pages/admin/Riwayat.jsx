@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function Riwayat() {
@@ -6,65 +6,33 @@ export default function Riwayat() {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
 
-  const initialData = [
-    {
-      id: 1,
-      tanggal: "2026-01-18",
-      kamar: "Kamar-1",
-      penyewa: "Budi Santoso",
-      status: "Check-In",
-      kategori: "pemilik",
-      keterangan: "Sewa bulanan baru",
-    },
-    {
-      id: 2,
-      tanggal: "2026-01-15",
-      kamar: "Kamar-3",
-      penyewa: "Siti Aminah",
-      status: "Check-Out",
-      kategori: "pemilik",
-      keterangan: "Masa sewa berakhir",
-    },
-    {
-      id: 3,
-      tanggal: "2026-01-20",
-      kamar: "Kamar-5",
-      penyewa: "Andi Wijaya",
-      status: "Booking",
-      kategori: "booking",
-      keterangan: "DP sebesar 500rb",
-    },
-    {
-      id: 4,
-      tanggal: "2026-01-10",
-      kamar: "Kamar-2",
-      penyewa: "Rina Permata",
-      status: "Booking",
-      kategori: "booking",
-      keterangan: "Akan masuk tanggal 1 Feb",
-    },
-  ];
+  const [riwayat, setRiwayat] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  fetch("http://localhost:8000/api/riwayat")
+    .then((res) => res.json())
+    .then((data) => {
+      setRiwayat(data);
+      setLoading(false);
+    })
+    .catch(() => setLoading(false));
+  }, []);
 
   const filteredRiwayat = useMemo(() => {
-    const hariIni = new Date();
+  return riwayat.filter((item) => {
+    const matchesTab =
+      activeTab === "semua" || item.kategori === activeTab;
 
-    return initialData.filter((item) => {
-      if (item.status === "Booking") {
-        const selisihHari =
-          (hariIni - new Date(item.tanggal)) / (1000 * 3600 * 24);
-        if (selisihHari > 2) return false;
-      }
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      item.penyewa.toLowerCase().includes(q) ||
+      item.kamar.toLowerCase().includes(q);
 
-      const matchesTab = activeTab === "semua" || item.kategori === activeTab;
+    return matchesTab && matchesSearch;
+  });
+  }, [riwayat, activeTab, searchQuery]);
 
-      const q = searchQuery.toLowerCase();
-      const matchesSearch =
-        item.penyewa.toLowerCase().includes(q) ||
-        item.kamar.toLowerCase().includes(q);
-
-      return matchesTab && matchesSearch;
-    });
-  }, [activeTab, searchQuery]);
 
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -151,15 +119,25 @@ export default function Riwayat() {
 
         {/* LIST */}
         <div className="grid gap-4 max-h-[550px] overflow-y-auto pr-2">
-          {filteredRiwayat.length ? (
+
+          {loading ? (
+            /* 🔄 LOADING STATE */
+            <div className="flex justify-center py-20">
+              <div className="w-12 h-12 border-4 border-[#1E1B6D] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
+          ) : filteredRiwayat.length > 0 ? (
+
             filteredRiwayat.map((item) => (
               <div
                 key={item.id}
                 className="flex flex-col md:flex-row md:items-center justify-between
-                           bg-white rounded-[24px] p-6 shadow-sm
-                           transition-all duration-300 animate-fadeIn"
+                          bg-white rounded-[24px] p-6 shadow-sm
+                          transition-all duration-300 animate-fadeIn"
               >
                 <div className="flex gap-6 items-center">
+                  
+                  {/* ICON NOMOR KAMAR (AMAN DARI ERROR) */}
                   <div
                     className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg ${
                       item.status === "Check-In"
@@ -169,18 +147,24 @@ export default function Riwayat() {
                           : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {item.kamar.split("-")[1]}
+                    {item.kamar?.includes("-")
+                      ? item.kamar.split("-")[1]
+                      : "-"}
                   </div>
 
                   <div>
                     <span className="text-xs font-bold text-gray-400">
-                      {new Date(item.tanggal).toLocaleDateString("id-ID")}
+                      {item.tanggal
+                        ? new Date(item.tanggal).toLocaleDateString("id-ID")
+                        : "-"}
                     </span>
+
                     <h3 className="font-bold text-[#1E1B6D] text-lg">
-                      {item.penyewa}
+                      {item.penyewa || "-"}
                     </h3>
+
                     <p className="text-sm text-gray-500 italic">
-                      "{item.keterangan}"
+                      "{item.keterangan || "-"}"
                     </p>
                   </div>
                 </div>
@@ -198,7 +182,10 @@ export default function Riwayat() {
                 </p>
               </div>
             ))
+
           ) : (
+
+            /* ❌ EMPTY STATE */
             <div className="text-center py-20 bg-white rounded-[24px]">
               <p className="text-gray-400 font-bold">
                 Tidak ada data ditemukan
