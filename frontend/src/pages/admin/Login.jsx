@@ -155,13 +155,13 @@ console.log("Submitting:");
               />
             </div>
 
-            {/* Register Link - Muncul ketiga */}
+            {/* Register Link - Muncul ketiga
             <div className="text-white text-sm font-medium animate-smooth-in" style={{ animationDelay: "0.6s" }}>
               Don't have an account?{" "}
               <Link to="/register" className="underline hover:text-[#EBEBDF] transition-colors">
                 Register
               </Link>
-            </div>
+            </div> */}
 
             {/* Submit Button - Muncul terakhir */}
             <div className="animate-smooth-in" style={{ animationDelay: "0.8s" }}>

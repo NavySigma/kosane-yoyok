@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+/* ================= GUEST ================= */
+import Guest from "./pages/guest/Guest";
+
 /* ================= ADMIN ================= */
 import AdminLogin from "./pages/admin/Login";
 import AdminRegister from "./pages/admin/Register";
@@ -13,7 +16,6 @@ import Kamar from "./pages/admin/Kamar";
 import LoginUser from "./pages/user/LoginUser";
 import RegisterUser from "./pages/user/RegisterUser";
 
-
 /* ================= LAYOUT & GUARD ================= */
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -23,10 +25,12 @@ export default function App() {
     <BrowserRouter>
       <Routes>
 
+        {/* ================= GUEST (LANDING PAGE) ================= */}
+        <Route path="/" element={<Guest />} />
+
         {/* ================= USER (PUBLIC / MOBILE) ================= */}
         <Route path="/login" element={<LoginUser />} />
         <Route path="/register" element={<RegisterUser />} />
-       
 
         {/* ================= ADMIN (PUBLIC) ================= */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -48,8 +52,7 @@ export default function App() {
         </Route>
 
         {/* ================= DEFAULT ================= */}
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>
     </BrowserRouter>

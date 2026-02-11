@@ -228,7 +228,7 @@ const [serverError, setServerError] = useState("");
             >
               Already have an account?{" "}
               <Link
-                to="/login"
+                to="/admin/login"
                 className="underline hover:text-[#EBEBDF] transition-colors"
               >
                 Login

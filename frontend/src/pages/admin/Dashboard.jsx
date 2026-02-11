@@ -34,7 +34,7 @@ export default function Dashboard() {
   return (
     <div className="p-6 pt-20">
       {/* CHART */}
-      <div className="bg-[#F7F5EC] rounded-2xl p-6 shadow">
+      <div className="bg-white rounded-2xl p-6 drop-shadow-lg">
         <div className="flex flex-col items-start mb-4 gap-1">
           <h2 className="font-bold text-[#1E1B6D]">Sewa Aktif</h2>
           <span className="px-4 py-1 text-xs bg-[#1E1B6D] text-white rounded-lg">

@@ -79,9 +79,12 @@ export default function Navbar() {
         </div>
 
         {/* NAVBAR */}
-        <div className="absolute left-1/2 -translate-x-1/2 bg-[#F7F5EC]/70 backdrop-blur-md rounded-full px-2 py-1.5 shadow-xl flex items-center gap-2 border border-white/50">
+        <div className="absolute left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-md rounded-full px-2 py-1.5 shadow-xl flex items-center gap-2 border border-white/50">
           <NavLink to="/admin/dashboard" className={navClass}>
             <img src="/home.png" className="w-5 h-5" /> Beranda
+          </NavLink>
+          <NavLink to="/admin/kamar" className={navClass}>
+            <img src="/kamaricon.png" className="w-5 h-5" /> Kamar
           </NavLink>
           <NavLink to="/admin/pemasukan" className={navClass}>
             <img src="/pemasukan.png" className="w-5 h-5" /> Pemasukan
@@ -92,15 +95,12 @@ export default function Navbar() {
           <NavLink to="/admin/riwayat" className={navClass}>
             <img src="/history.png" className="w-5 h-5" /> Riwayat
           </NavLink>
-          <NavLink to="/admin/kamar" className={navClass}>
-            <img src="/kamaricon.png" className="w-5 h-5" /> Kamar
-          </NavLink>
 
           {/* DOT MENU */}
           <div className="relative">
             <button
               onClick={() => setOpen(!open)}
-              className={`w-9 h-9 rounded-full bg-[#E6E4D8] flex items-center justify-center transition
+              className={`w-9 h-9 rounded-full bg-[#f1f1f1] flex items-center justify-center transition
                 ${open ? "rotate-90 scale-110" : ""}`}
             >
               •••
@@ -120,7 +120,7 @@ export default function Navbar() {
                 <button
                   onClick={() => {
                     localStorage.clear();
-                    navigate("/login");
+                    navigate("/admin/login");
                   }}
                   className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-semibold"
                 >
@@ -137,11 +137,11 @@ export default function Navbar() {
       {/* PANEL PROFIL */}
       {showProfile && (
         <div
-          className="fixed inset-0 z-10 flex justify-end items-start pt-28 pr-11 bg-black/30"
+          className="fixed inset-0 z-50 bg-black/30"
           onClick={() => setShowProfile(false)}
         >
           <div
-            className="bg-white w-80 rounded-2xl shadow-2xl p-5"
+            className="absolute top-28 right-64 bg-white w-80 rounded-2xl shadow-2xl p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-sm font-semibold text-[#1E1B6D] mb-4">
@@ -153,27 +153,29 @@ export default function Navbar() {
                 value={nama}
                 onChange={(e) => setNama(e.target.value)}
                 placeholder="Nama"
-                className="w-full px-4 py-2 rounded-full border text-sm"
+                className="w-full px-4 py-2 rounded-full border text-sm focus:outline-none focus:ring-2 focus:ring-[#1E1B6D]"
               />
+
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password Baru"
-                className="w-full px-4 py-2 rounded-full border text-sm"
+                className="w-full px-4 py-2 rounded-full border text-sm focus:outline-none focus:ring-2 focus:ring-[#1E1B6D]"
               />
+
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Konfirmasi Password"
-                className="w-full px-4 py-2 rounded-full border text-sm"
+                className="w-full px-4 py-2 rounded-full border text-sm focus:outline-none focus:ring-2 focus:ring-[#1E1B6D]"
               />
             </div>
 
             <button
               onClick={handleSaveProfile}
-              className="mt-4 w-full bg-[#1E1B6D] text-white py-2 rounded-full text-sm font-semibold"
+              className="mt-4 w-full bg-[#1E1B6D] text-white py-2 rounded-full text-sm font-semibold hover:opacity-90 transition"
             >
               Simpan
             </button>
@@ -188,6 +190,6 @@ const navClass = ({ isActive }) =>
   `flex items-center gap-2 px-3 py-2 rounded-full text-sm transition-all
   ${
     isActive
-      ? "bg-[#E6E4D8] text-[#1E1B6D] font-semibold shadow-sm scale-105"
+      ? "bg-[#f1f1f1] text-[#1E1B6D] font-semibold shadow-sm scale-105"
       : "text-[#1E1B6D]/70 hover:bg-white/40"
   }`;
