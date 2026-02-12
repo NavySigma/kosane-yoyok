@@ -102,7 +102,7 @@ export default function Kamar() {
 
 
   return (
-    <div className="min-h-screen bg-[#f1f1f1] p-6 pt-24 text-[#1E1B6D]">
+    <div className="min-h-screen bg-[#f1f1f1] p-6 pt-20 text-[#1E1B6D]">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
         {/* PANEL KIRI */}
         <div className="w-full lg:w-[400px] bg-white rounded-[32px] p-10 shadow-xl h-fit">
