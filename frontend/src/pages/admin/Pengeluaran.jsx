@@ -57,12 +57,12 @@ export default function Pengeluaran() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f1f1f1] px-20 py-16">
+    <div className="min-h-screen bg-[#f1f1f1] px-20 py-20">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-7xl mx-auto">
 
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl p-6 text-red-700 shadow">
+          <div className="bg-white rounded-2xl p-7 text-red-700 shadow-md">
             <p className="text-sm opacity-80">Total Pengeluaran</p>
             <h2 className="text-3xl font-bold mt-1">
               Rp {totalPengeluaran.toLocaleString("id-ID")}
