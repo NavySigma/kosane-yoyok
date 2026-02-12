@@ -119,32 +119,35 @@ export default function Pemasukan() {
             </h3>
 
             {/* PILIH PENYEWA */}
-            <select
-              className="w-full rounded-full px-5 py-3 border border-[#1E1B6D] focus:outline-none focus:ring-2 focus:ring-[#1E1B6D]"
-              value={form.nama}
-              onChange={(e) => {
-                const selectedNama = e.target.value;
-
-                const dataPenyewa = transaksi.find(
-                  (t) => t.nama === selectedNama
-                );
-
-                setForm({
-                  ...form,
-                  nama: selectedNama,
-                  kamar: dataPenyewa ? dataPenyewa.kamar : "",
-                });
-              }}
-            >
-              <option value="">Pilih Penyewa</option>
-              {[...new Set(transaksi.map((t) => t.nama))].map(
-                (nama) => (
-                  <option key={nama} value={nama}>
-                    {nama}
-                  </option>
-                )
-              )}
-            </select>
+<div className="relative w-full">
+  <select
+    className="w-full appearance-none rounded-full px-5 py-3 border border-[#1E1B6D] focus:outline-none focus:ring-2 focus:ring-[#1E1B6D] bg-white pr-12"
+    value={form.nama}
+    onChange={(e) => {
+      const selectedNama = e.target.value;
+      const dataPenyewa = transaksi.find((t) => t.nama === selectedNama);
+      setForm({
+        ...form,
+        nama: selectedNama,
+        kamar: dataPenyewa ? dataPenyewa.kamar : "",
+      });
+    }}
+  >
+    <option value="">Pilih Penyewa</option>
+    {[...new Set(transaksi.map((t) => t.nama))].map((nama) => (
+      <option key={nama} value={nama}>
+        {nama}
+      </option>
+    ))}
+  </select>
+  
+  {/* Icon Panah Custom agar bisa digeser ke kiri */}
+  <div className="pointer-events-none absolute inset-y-0 right-5 flex items-center text-[#1E1B6D]">
+    <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+    </svg>
+  </div>
+</div>
 
             {/* KAMAR OTOMATIS (READONLY) */}
             <input

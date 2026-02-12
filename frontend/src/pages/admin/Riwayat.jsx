@@ -41,8 +41,8 @@ export default function Riwayat() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EFEDE2] p-6 pt-20 font-sans select-none">
-      <div className="bg-[#EBEBDF] rounded-[32px] p-8 max-w-7xl mx-auto shadow-sm">
+    <div className="min-h-screen bg-[#f1f1f1] p-6 pt-20 font-sans select-none">
+      <div className="bg-[#f1f1f1] rounded-[32px] p-8 max-w-7xl mx-auto shadow-sm">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b pb-6 gap-4 border-[#1E1B6D]/10">
           <div>
@@ -90,7 +90,7 @@ export default function Riwayat() {
 
         {/* TAB */}
         <div className="mb-8 space-y-4">
-          <div className="flex gap-3 bg-white/50 p-1.5 rounded-2xl w-fit">
+          <div className="flex gap-3 bg-[#f1f1f1] p-1.5 rounded-2xl w-fit shadow">
             {[
               { id: "semua", label: "Semua Data" },
               { id: "pemilik", label: "Penghuni Aktif" },
@@ -118,10 +118,10 @@ export default function Riwayat() {
         </div>
 
         {/* LIST */}
-        <div className="grid gap-4 max-h-[550px] overflow-y-auto pr-2">
+        <div className="grid gap-4 max-h-[550px] overflow-y-auto pr-2 shadow">
 
           {loading ? (
-            /* 🔄 LOADING STATE */
+            /*  LOADING STATE */
             <div className="flex justify-center py-20">
               <div className="w-12 h-12 border-4 border-[#1E1B6D] border-t-transparent rounded-full animate-spin"></div>
             </div>
@@ -185,8 +185,8 @@ export default function Riwayat() {
 
           ) : (
 
-            /* ❌ EMPTY STATE */
-            <div className="text-center py-20 bg-white rounded-[24px]">
+            /* EMPTY STATE */
+            <div className="text-center py-20 pr-2 bg-white rounded-[24px]">
               <p className="text-gray-400 font-bold">
                 Tidak ada data ditemukan
               </p>
