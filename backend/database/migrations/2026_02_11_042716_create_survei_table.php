@@ -18,6 +18,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('nama_pesurvei');
+            $table->enum('status_survei', ['pending','finish','expired'])->default('pending');
             $table->text('catatan')->nullable();
             $table->timestamps();
         });

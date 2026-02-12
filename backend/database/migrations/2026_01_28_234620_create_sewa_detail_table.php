@@ -15,7 +15,6 @@ return new class extends Migration
             $table->bigIncrements('id_sewadetail');
             $table->unsignedBigInteger('id_sewa_sewadetail');
             $table->unsignedBigInteger('id_kamar_sewadetail');
-            $table->enum('status_pembayaran', ['pending', 'lunas', 'cancel']);
             $table->enum('metode_pembayaran', ['tunai', 'transfer']);
             $table->integer('sewa_berapa_bulan');
             $table->timestamps();
