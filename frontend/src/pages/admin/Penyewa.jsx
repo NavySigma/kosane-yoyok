@@ -33,6 +33,15 @@ export default function Kamar() {
     });
   }, []);
 
+  const defaultAddForm = {
+  nama_penyewa: "",
+  no_telp: "",
+  tanggal_mulai: new Date().toISOString().split("T")[0],
+  sewa_berapa_bulan: 1,
+  metode_pembayaran: "transfer",
+  catatan: "",
+  };
+
   const [form, setForm] = useState({
     namaPenyewa: "",
     noTelp: "",
@@ -44,14 +53,7 @@ export default function Kamar() {
     catatan: "",
   });
 
-    const [addForm, setAddForm] = useState({
-    nama_penyewa: "",
-    no_telp: "",
-    tanggal_mulai: new Date().toISOString().split("T")[0],
-    sewa_berapa_bulan: 1,
-    metode_pembayaran: "transfer",
-    catatan: "",
-    });
+    const [addForm, setAddForm] = useState(defaultAddForm);
 
   useEffect(() => {
     setAddForm((prev) => ({
@@ -67,7 +69,8 @@ export default function Kamar() {
   };
 
   const handleTambah = (kamar) => {
-  setSelectedKamar(null);
+  setSelectedKamar(kamar);
+  setAddForm(defaultAddForm);
   setIsModalOpen(true);
   };
 
@@ -209,11 +212,17 @@ export default function Kamar() {
 
     setIsModalOpen(false);
 
+    setAddForm(defaultAddForm);
+
   } catch (error) {
     console.error("Gagal simpan:", error);
   }
   };
 
+  const handleCloseAll = () => {
+    setIsModalOpen(false);     // tutup modal
+    setSelectedKamar(null);    // tutup panel kanan
+    };
 
   useEffect(() => {
   if (selectedKamar) {
@@ -232,6 +241,52 @@ export default function Kamar() {
   const totalBayar =
   (Number(form.jumlahPenyewa) || 1) * (Number(selectedKamar?.harga) || 0);
 
+  const sisaBayar = (totalBayar || 0) - (form.cicilan || 0);
+
+  const handleAkhiriSewa = async () => {
+  if (!selectedKamar) return;
+
+  const confirmDelete = window.confirm("Yakin mau akhiri sewa?");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:8000/api/penyewa/${selectedKamar.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    const result = await res.json();
+    console.log("DELETE:", result);
+
+    // 🔥 update UI
+    setKamarList((prev) =>
+      prev.map((k) =>
+        Number(k.id) === Number(selectedKamar.id)
+          ? { ...k, status: "Tersedia" }
+          : k
+      )
+    );
+
+    // 🔥 reset state
+    setSelectedKamar(null);
+    setForm({
+      namaPenyewa: "",
+      noTelp: "",
+      jumlahPenyewa: 1,
+      metodeBayar: "",
+      totalBayar: "",
+      cicilan: 0,
+      catatan: "",
+    });
+
+    showSuccess();
+
+  } catch (error) {
+    console.error("Gagal hapus:", error);
+  }
+  };
 
   return (
     <div className="min-h-screen bg-[#f1f1f1] p-6 pt-20 text-[#1E1B6D]">
@@ -384,30 +439,40 @@ export default function Kamar() {
 
   {/* TOTAL CICILAN */}
   <div>
-    <label className="font-semibold text-xs">Total Cicilan Saat Ini</label>
+  <label className="font-semibold text-xs">Total Cicilan Saat Ini</label>
+
     <div className="relative">
-    <span className="absolute left-3 top-1.5 text-sm text-gray-500">Rp</span>
-    <input
+        <span className="absolute left-4 top-2.5 text-sm text-gray-500">Rp</span>
+        <input
         name="cicilan"
         value={form.cicilan || ""}
         onChange={(e) => {
-        const value = e.target.value.replace(/[^0-9]/g, "");
-        setForm((prev) => ({
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            setForm((prev) => ({
             ...prev,
             cicilan: value === "" ? 0 : Number(value),
-        }));
+            }));
         }}
         className="w-full mt-1 rounded-full border border-[#5E5BA6] pl-10 pr-4 py-1.5 text-sm outline-none"
-    />
+        />
     </div>
 
+    {/* TOTAL */}
     <p className="text-xs mt-1">
-      Total yang Harus dibayar :
-      <span className="font-bold ml-1">
-      Rp {(totalBayar).toLocaleString("id-ID")}
-      </span>
+        Total bayar :
+        <span className="font-bold ml-1">
+        Rp {totalBayar.toLocaleString("id-ID")}
+        </span>
     </p>
-  </div>
+
+    {/* SISA */}
+    <p className="text-xs mt-1">
+        Sisa yang harus bayar :
+        <span className={`font-bold ml-1 ${sisaBayar <= 0 ? "text-green-500" : "text-red-500"}`}>
+        Rp {Math.max(sisaBayar, 0).toLocaleString("id-ID")}
+        </span>
+    </p>
+    </div>
 
   {/* ================= BUTTON ================= */}
 
@@ -549,7 +614,7 @@ export default function Kamar() {
 
       <div className="flex justify-end gap-3 pt-2">
         <button
-          onClick={() => setIsModalOpen(false)}
+          onClick={handleCloseAll}
           className="text-sm text-gray-500 hover:text-black"
         >
           Batal
