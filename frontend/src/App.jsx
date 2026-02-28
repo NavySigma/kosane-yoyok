@@ -7,10 +7,9 @@ import Guest from "./pages/guest/Guest";
 import AdminLogin from "./pages/admin/Login";
 import AdminRegister from "./pages/admin/Register";
 import Dashboard from "./pages/admin/Dashboard";
-import Pemasukan from "./pages/admin/Pemasukan";
-import Pengeluaran from "./pages/admin/Pengeluaran";
+import Keuangan from "./pages/admin/Keuangan";
 import Riwayat from "./pages/admin/Riwayat";
-import Kamar from "./pages/admin/Kamar";
+import Penyewa from "./pages/admin/Penyewa";
 
 /* ================= USER ================= */
 import LoginUser from "./pages/user/LoginUser";
@@ -19,10 +18,12 @@ import RegisterUser from "./pages/user/RegisterUser";
 /* ================= LAYOUT & GUARD ================= */
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
+import Cursor from "./components/Cursor";
 
 export default function App() {
   return (
     <BrowserRouter>
+    <Cursor />
       <Routes>
 
         {/* ================= GUEST (LANDING PAGE) ================= */}
@@ -45,10 +46,9 @@ export default function App() {
           }
         >
           <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/pemasukan" element={<Pemasukan />} />
-          <Route path="/admin/pengeluaran" element={<Pengeluaran />} />
+            <Route path="/admin/keuangan" element={<Keuangan />} />
           <Route path="/admin/riwayat" element={<Riwayat />} />
-          <Route path="/admin/kamar" element={<Kamar />} />
+          <Route path="/admin/penyewa" element={<Penyewa />} />
         </Route>
 
         {/* ================= DEFAULT ================= */}

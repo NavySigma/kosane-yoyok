@@ -18,6 +18,8 @@ return new class extends Migration
             $table->enum('status_pembayaran', ['pending', 'lunas'])->default('pending');
             $table->enum('metode_pembayaran', ['tunai', 'transfer']);
             $table->integer('sewa_berapa_bulan');
+            $table->integer('cicilan')->default(0);
+            $table->text('catatan')->nullable();
             $table->timestamps();
 
             $table->foreign('id_sewa_sewadetail')

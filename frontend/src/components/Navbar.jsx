@@ -84,13 +84,13 @@ export default function Navbar() {
             <img src="/home.png" className="w-5 h-5" /> Beranda
           </NavLink>
           <NavLink to="/admin/kamar" className={navClass}>
-            <img src="/kamaricon.png" className="w-5 h-5" /> Kamar
+            <img src="/pengeluaran.png" className="w-5 h-5" /> Kamar
           </NavLink>
-          <NavLink to="/admin/pemasukan" className={navClass}>
-            <img src="/pemasukan.png" className="w-5 h-5" /> Pemasukan
+          <NavLink to="/admin/penyewa" className={navClass}>
+            <img src="/user.png" className="w-5 h-5" /> Penyewa
           </NavLink>
-          <NavLink to="/admin/pengeluaran" className={navClass}>
-            <img src="/pengeluaran.png" className="w-5 h-5" /> Pengeluaran
+          <NavLink to="/admin/keuangan" className={navClass}>
+            <img src="/pemasukan.png" className="w-5 h-5" /> Keuangan
           </NavLink>
           <NavLink to="/admin/riwayat" className={navClass}>
             <img src="/history.png" className="w-5 h-5" /> Riwayat

@@ -14,7 +14,9 @@ class SewaDetail extends Model
         'id_kamar_sewadetail',
         'status_pembayaran',
         'metode_pembayaran',
-        'sewa_berapa_bulan'
+        'sewa_berapa_bulan',
+        'cicilan',
+        'catatan'
     ];
 
     public function sewa()
