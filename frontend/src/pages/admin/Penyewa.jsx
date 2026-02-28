@@ -20,7 +20,15 @@ export default function Kamar() {
   useEffect(() => {
   setLoading(true);
 
-  fetch("http://localhost:8000/api/penyewa")
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const token = user?.token || "";
+
+  fetch("http://localhost:8000/api/penyewa", {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
     .then((res) => res.json())
     .then((data) => {
       setKamarList(data);
@@ -75,9 +83,18 @@ export default function Kamar() {
   setSelectedKamar(kamar);
   setIsModalOpen(false);
   setLoadingDetail(true);
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const token = user?.token || "";
+
   try {
     const res = await fetch(
-      `http://localhost:8000/api/penyewa/kamar/${kamar.id}`
+      `http://localhost:8000/api/penyewa/kamar/${kamar.id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
     );
 
     const data = await res.json();
@@ -120,6 +137,11 @@ export default function Kamar() {
 
   const handleUpdate = async () => {
   if (!selectedKamar) return;
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const token = user?.token || "";
+
   try {
     const res = await fetch(
       `http://localhost:8000/api/penyewa/${selectedKamar.id}`,
@@ -127,7 +149,8 @@ export default function Kamar() {
         method: "PUT", // atau PATCH
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
           nama_profile: form.namaPenyewa,
@@ -160,6 +183,10 @@ export default function Kamar() {
   const handleSubmitAdd = async () => {
   if (!selectedKamar) return;
 
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const token = user?.token || "";
+
   const payload = {
   kamar_id: selectedKamar.id,
   nama_profile: addForm.nama_penyewa,
@@ -176,6 +203,7 @@ export default function Kamar() {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(payload),
     });

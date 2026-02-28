@@ -35,12 +35,15 @@ class AuthController extends Controller
         }
 
         // Login sukses
+        $token = $profile->createToken('admin-token')->plainTextToken;
+
         return response()->json([
             'status' => 'success',
             'message' => 'Login berhasil',
             'data' => [
                 'id_profile' => $profile->id_profile,
-                'nama_profile' => $profile->nama_profile
+                'nama_profile' => $profile->nama_profile,
+                'token' => $token
             ]
         ]);
     }
@@ -63,6 +66,16 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'Register berhasil',
             'data' => $profile
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logout berhasil'
         ]);
     }
 }
