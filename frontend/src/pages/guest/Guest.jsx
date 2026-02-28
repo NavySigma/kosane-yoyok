@@ -1,136 +1,204 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Guest() {
+  useEffect(() => {
+    const elements = document.querySelectorAll(".fade-up");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#1E1678] text-white flex flex-col">
-      {/* ================= NAVBAR ================= */}
-      <div className="flex justify-center mt-6">
-        <div className="bg-white text-[#1E1678] rounded-full px-6 py-2 flex gap-6 shadow-lg items-center text-sm font-medium">
-          <span className="cursor-pointer hover:text-indigo-600">Beranda</span>
-          <span className="cursor-pointer hover:text-indigo-600">Tentang</span>
-          <span className="cursor-pointer hover:text-indigo-600">Rumah</span>
+    <div className="bg-[#EBEBDF] font-sans overflow-hidden">
 
-          <Link
-            to="/login"
-            className="bg-[#1E1678] text-white px-4 py-1 rounded-full hover:scale-105 transition"
-          >
-            Login
-          </Link>
+      <style>
+        {`
+        .fade-up {
+          opacity: 0;
+          transform: translateY(40px);
+          transition: all .8s ease;
+        }
+        .fade-up.show {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}
+      </style>
 
-          <Link
-            to="/register"
-            className="bg-[#6C63FF] text-white px-4 py-1 rounded-full hover:scale-105 transition"
-          >
-            Register
-          </Link>
+      {/* ================= HERO ================= */}
+      <div className="bg-[#2B207C] text-white pb-32 relative">
+
+        {/* NAVBAR */}
+        <div className="flex justify-center pt-6">
+          <div className="bg-white/90 backdrop-blur-md px-6 py-2 rounded-full flex gap-6 items-center shadow-lg text-[#2B207C] font-semibold text-sm">
+            <span>Beranda</span>
+            <span>Tentang</span>
+            <span>Survei</span>
+
+            <Link to="/login" className="bg-[#2B207C] text-white px-4 py-1 rounded-full text-xs">
+              Login
+            </Link>
+            <Link to="/register" className="bg-[#2B207C] text-white px-4 py-1 rounded-full text-xs">
+              Register
+            </Link>
+          </div>
         </div>
-      </div>
 
-      {/* ================= HERO SECTION ================= */}
-      <div className="flex flex-col md:flex-row items-center justify-between px-10 mt-16">
-        {/* Text */}
-        <div className="max-w-md">
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight">
-            Cari kost nggak <br /> perlu pusing.
-          </h1>
-          <p className="text-sm mt-4 text-gray-300">
-            Lingkungan bersih, harga terjangkau, posisi strategis dan nyaman.
-          </p>
+        {/* HERO CONTENT */}
+        <div className="max-w-6xl mx-auto px-6 mt-20 flex flex-col md:flex-row items-center justify-between">
+          <div className="max-w-md fade-up">
+            <h1 className="text-4xl font-extrabold leading-tight mb-4">
+              Cari kost nggak<br />perlu pusing.
+            </h1>
+            <p className="opacity-80 text-sm">
+              Lingkungan bersih, harga terjangkau, lokasi strategis.
+            </p>
+          </div>
+
+          <img
+            src="/house.png"
+            alt="house"
+            className="w-64 md:w-[400px] mt-10 md:mt-0 fade-up"
+          />
         </div>
 
-        {/* Illustration SVG */}
-        <div className="mt-10 md:mt-0">
-          <svg width="220" height="180" viewBox="0 0 200 150">
-            <circle cx="100" cy="75" r="60" fill="#6C63FF" opacity="0.2" />
-            <rect x="60" y="60" width="80" height="50" fill="#6C63FF" />
-            <polygon
-              points="60,60 100,30 140,60"
-              fill="#4F46E5"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Wave */}
-      <div className="mt-10">
-        <svg viewBox="0 0 1440 200">
+        {/* WAVE */}
+        <svg
+          className="absolute bottom-0 left-0 w-full"
+          viewBox="0 0 1440 320"
+        >
           <path
-            fill="#ffffff"
-            fillOpacity="0.2"
-            d="M0,160L80,154.7C160,149,320,139,480,122.7C640,107,800,85,960,80C1120,75,1280,85,1360,90.7L1440,96V200H0Z"
+            fill="#EBEBDF"
+            fillOpacity="1"
+            d="M0,224L80,202.7C160,181,320,139,480,138.7C640,139,800,181,960,186.7C1120,192,1280,160,1360,144L1440,128V320H0Z"
           ></path>
         </svg>
       </div>
 
       {/* ================= FASILITAS ================= */}
-      <div className="px-10 mt-10">
-        <h2 className="text-center font-semibold text-lg">
-          Everything you get is here. Exciting!
-        </h2>
+      <div className="max-w-6xl mx-auto px-6 -mt-16 relative z-10 fade-up">
+        <p className="text-[#2B207C] font-bold mb-6">
+          Everything you get is here. Cek yuk!
+        </p>
 
-        <div className="grid md:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white text-[#1E1678] p-6 rounded-2xl shadow-lg">
-            <h3 className="font-bold mb-3">Fasilitas Kamar</h3>
-            <ul className="text-sm space-y-1">
-              <li>• Kasur & Meja</li>
-              <li>• Kamar & Listrik</li>
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="bg-[#2B207C] text-white rounded-3xl p-8 shadow-xl">
+            <h3 className="font-bold mb-4">Fasilitas Kamar</h3>
+            <ul className="space-y-2 text-sm">
+              <li>• Kasur</li>
               <li>• Lemari</li>
+              <li>• Bantal & Guling</li>
             </ul>
           </div>
 
-          <div className="bg-white text-[#1E1678] p-6 rounded-2xl shadow-lg">
-            <h3 className="font-bold mb-3">Fasilitas Umum</h3>
-            <ul className="text-sm space-y-1">
-              <li>• Wi-Fi</li>
-              <li>• Dapur Bersama</li>
-              <li>• Eksternal Security</li>
+          <div className="bg-white rounded-3xl p-8 shadow-xl">
+            <h3 className="font-bold mb-4 text-[#2B207C]">Fasilitas Umum</h3>
+            <ul className="space-y-2 text-sm text-[#2B207C]">
+              <li>• WiFi</li>
+              <li>• Dapur</li>
+              <li>• Kamar Mandi Luar</li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* ================= BUTTON CTA ================= */}
-      <div className="flex justify-center mt-10">
-        <button className="bg-white text-[#1E1678] px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
-          Kenalan yuk sama Kost Pak Yoyok!
-        </button>
-      </div>
-
       {/* ================= GALLERY ================= */}
-      <div className="px-10 mt-10">
-        <h3 className="text-sm mb-4">Intip setiap sudutnya!</h3>
+      <div className="max-w-6xl mx-auto px-6 mt-20 fade-up">
+        <h2 className="text-[#2B207C] font-bold mb-6">
+          Intip setiap sudutnya!
+        </h2>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-gray-300 h-24 rounded-lg"></div>
-          <div className="bg-gray-300 h-24 rounded-lg"></div>
-          <div className="bg-gray-300 h-24 rounded-lg"></div>
-          <div className="bg-gray-300 h-24 rounded-lg"></div>
-          <div className="bg-gray-300 h-24 rounded-lg"></div>
-          <div className="bg-gray-300 h-24 rounded-lg"></div>
+          {[1,2,3,4,5,6].map((num) => (
+            <img
+              key={num}
+              src={`/gambar${num}.png`}
+              alt={`gambar${num}`}
+              className="rounded-xl h-32 object-cover shadow-md hover:scale-105 transition"
+            />
+          ))}
         </div>
       </div>
 
       {/* ================= MAP ================= */}
-      <div className="px-10 mt-12">
-        <h2 className="font-bold text-lg">Welcome Home!</h2>
-        <div className="bg-white mt-4 rounded-xl overflow-hidden">
-          <iframe
-            title="map"
-            src="https://www.google.com/maps/embed?pb=!1m18..."
-            width="100%"
-            height="200"
-            allowFullScreen=""
-            loading="lazy"
-          ></iframe>
+      <div className="bg-[#2B207C] text-white mt-24 pt-20 pb-32 relative fade-up">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl font-extrabold mb-10">
+            Welcome home!
+          </h2>
+
+          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl">
+            <iframe
+              title="map"
+              src="https://www.google.com/maps/embed?pb=!1m18..."
+              width="100%"
+              height="300"
+              style={{ border: 0 }}
+              loading="lazy"
+            ></iframe>
+          </div>
         </div>
+
+        {/* WAVE */}
+        <svg
+          className="absolute bottom-0 left-0 w-full"
+          viewBox="0 0 1440 320"
+        >
+          <path
+            fill="#EBEBDF"
+            d="M0,256L80,240C160,224,320,192,480,176C640,160,800,160,960,176C1120,192,1280,224,1360,240L1440,256V320H0Z"
+          ></path>
+        </svg>
+      </div>
+
+      {/* ================= FORM ================= */}
+      <div className="max-w-6xl mx-auto px-6 -mt-24 relative z-10 grid md:grid-cols-2 gap-10 fade-up">
+
+        <div className="bg-white rounded-3xl p-8 shadow-xl">
+          <h3 className="font-bold text-[#2B207C] mb-6">
+            Mau sewa kost? Yuk, sebutin!
+          </h3>
+
+          <div className="space-y-4">
+            <input className="w-full border rounded-full px-4 py-2" placeholder="Nama" />
+            <input className="w-full border rounded-full px-4 py-2" placeholder="Tanggal" />
+            <input className="w-full border rounded-full px-4 py-2" placeholder="Catatan" />
+            <button className="bg-[#2B207C] text-white px-6 py-2 rounded-full text-sm">
+              Kirim
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl p-8 shadow-xl">
+          <h3 className="font-bold text-[#2B207C] mb-6">
+            Riwayat survei kamu
+          </h3>
+
+          <div className="space-y-4">
+            <input className="w-full border rounded-full px-4 py-2" placeholder="Nama" />
+            <input className="w-full border rounded-full px-4 py-2" placeholder="Tanggal" />
+            <input className="w-full border rounded-full px-4 py-2" placeholder="Catatan" />
+          </div>
+        </div>
+
       </div>
 
       {/* ================= FOOTER ================= */}
-      <div className="mt-16 bg-[#140f5e] p-6 text-sm text-gray-300">
-        <p>Kost Pak Yoyok, Pulik Rejo</p>
-        <p>Kecamatan Ruko, Jombang, Kabupaten Malang, Jawa Timur 6955</p>
-        <p className="mt-2">+62 851-3521-782</p>
+      <div className="bg-[#2B207C] text-white mt-20 py-10 text-center text-sm">
+        © 2026 Kost Pak Yoyok
       </div>
+
     </div>
   );
 }
