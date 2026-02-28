@@ -10,7 +10,15 @@ export default function Riwayat() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  fetch("http://localhost:8000/api/riwayat")
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const token = user?.token || "";
+
+  fetch("http://localhost:8000/api/riwayat", {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
     .then((res) => res.json())
     .then((data) => {
       setRiwayat(data);

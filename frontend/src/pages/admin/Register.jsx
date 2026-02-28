@@ -56,7 +56,7 @@ const [serverError, setServerError] = useState("");
     }
 
     // sukses
-    navigate("/login");
+    navigate("/admin/login");
   } catch (err) {
     setServerError("Server error, coba lagi");
   }

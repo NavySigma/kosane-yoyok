@@ -17,7 +17,7 @@ export default function RegisterUser() {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.username || !form.phone || !form.password || !form.confirm) {
       setError("Semua field wajib diisi");
@@ -27,7 +27,38 @@ export default function RegisterUser() {
       setError("Password tidak sama");
       return;
     }
-    navigate("/login");
+
+    try {
+      const res = await fetch("http://localhost:8000/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          nama_profile: form.username,
+          no_telp_profile: form.phone,
+          password: form.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.errors) {
+          const firstError = Object.values(data.errors)[0][0];
+          setError(firstError || data.message || "Validasi gagal, cek kembali data Anda.");
+        } else {
+          setError(data.message || "Register gagal");
+        }
+        return;
+      }
+
+      // sukses
+      navigate("/login");
+    } catch (err) {
+      setError("Server error, coba lagi nanti.");
+    }
   };
 
   return (

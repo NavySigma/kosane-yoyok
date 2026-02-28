@@ -18,7 +18,7 @@ export default function Login() {
     setSuccess("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, password } = formData;
 
@@ -26,19 +26,40 @@ export default function Login() {
       setError("Username dan password wajib diisi.");
       return;
     }
-    if (username.length < 4) {
-      setError("Username minimal 4 karakter.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password minimal 6 karakter.");
-      return;
-    }
 
-    setSuccess("Login berhasil!");
-    localStorage.setItem("isLogin", "true");
-    localStorage.setItem("user", JSON.stringify({ nama: username }));
-    setTimeout(() => navigate("/admin/dashboard"), 1200);
+    try {
+      const res = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          nama_profile: username,
+          password: password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login gagal");
+        return;
+      }
+
+      // Cek apakah user ini member
+      if (data.data.level_profile !== 'user') {
+        setError('Akun ini bukan member. Silakan login di halaman admin.');
+        return;
+      }
+
+      setSuccess("Login berhasil!");
+      localStorage.setItem("isLogin", "true");
+      localStorage.setItem("user", JSON.stringify(data.data));
+      setTimeout(() => navigate("/"), 1200);
+    } catch (err) {
+      setError("Server error, silakan coba lagi nanti.");
+    }
   };
 
   return (

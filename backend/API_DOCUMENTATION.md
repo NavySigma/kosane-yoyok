@@ -2,6 +2,16 @@
 
 Base URL Default: `http://localhost:8000/api`
 
+> **Note - JSON Only:** 
+> API ini diatur secara *strict* untuk HANYA Menerima dan Mengembalikan format **JSON**. 
+> Anda wajib mengirimkan kedua Header berikut pada setiap request:
+> - `Content-Type: application/json`
+> - `Accept: application/json`
+>
+> **Note - Authorization:** 
+> Kecuali untuk Login dan Register, semua endpoint wajib menggunakan header **Authorization** dengan Bearer token yang didapat dari respons Login.
+> `Authorization: Bearer <token>`
+
 ---
 
 ## 1. Authentication
@@ -16,6 +26,14 @@ Base URL Default: `http://localhost:8000/api`
 |---|---|---|---|
 | `nama_profile` | String | Yes | Username akun |
 | `password` | String | Yes | Kata sandi akun |
+
+**Example Request**
+```json
+{
+    "nama_profile": "admin",
+    "password": "password123"
+}
+```
 
 **Success Response (200 OK)**
 ```json
@@ -49,6 +67,15 @@ Base URL Default: `http://localhost:8000/api`
 | `password` | String | Yes | Kata sandi (min. 3 karakter) |
 | `no_telp_profile` | String | Yes | Nomor telepon pengguna |
 
+**Example Request**
+```json
+{
+    "nama_profile": "budi",
+    "password": "password123",
+    "no_telp_profile": "081234567890"
+}
+```
+
 **Success Response (200 OK)**
 ```json
 {
@@ -61,6 +88,24 @@ Base URL Default: `http://localhost:8000/api`
         "created_at": "2024-03-01T10:00:00.000000Z",
         "id_profile": 2
     }
+}
+```
+
+### 1.3 Logout Admin
+- **URL:** `/api/logout`
+- **Method:** `POST`
+- **Description:** Logout admin dan menghapus token akses saat ini.
+
+**Headers**
+| Key | Value | Required | Description |
+|---|---|---|---|
+| `Authorization` | `Bearer <token>` | Yes | Token autentikasi |
+
+**Success Response (200 OK)**
+```json
+{
+    "status": "success",
+    "message": "Logout berhasil"
 }
 ```
 
@@ -156,6 +201,20 @@ Base URL Default: `http://localhost:8000/api`
 | `cicilan` | Integer | No | Pembayaran pertama/cicilan (Opsional) |
 | `catatan` | String | No | Catatan riwayat pembayaran |
 
+**Example Request**
+```json
+{
+    "kamar_id": 1,
+    "nama_profile": "Andi Firmansyah",
+    "no_telp_profile": "08123456789",
+    "tglsewa_sewa": "2024-03-01",
+    "sewa_berapa_bulan": 3,
+    "metode_pembayaran": "transfer",
+    "cicilan": 1500000,
+    "catatan": "Pembayaran lunas untuk sewa pertama"
+}
+```
+
 **Success Response (200 OK)**
 ```json
 {
@@ -178,6 +237,18 @@ Base URL Default: `http://localhost:8000/api`
 - `metode_pembayaran`
 - `cicilan`
 - `catatan`
+
+**Example Request**
+```json
+{
+    "nama_profile": "Andi Firmansyah",
+    "no_telp_profile": "08123456789",
+    "sewa_berapa_bulan": 6,
+    "metode_pembayaran": "transfer",
+    "cicilan": 0,
+    "catatan": "Perpanjangan sewa"
+}
+```
 
 **Success Response (200 OK)**
 ```json

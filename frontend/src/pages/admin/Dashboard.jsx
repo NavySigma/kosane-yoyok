@@ -12,7 +12,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/dashboard")
+    const userStr = localStorage.getItem("user");
+    const user = userStr ? JSON.parse(userStr) : null;
+    const token = user?.token || "";
+
+    fetch("http://localhost:8000/api/dashboard", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
