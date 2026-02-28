@@ -20,12 +20,13 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
-console.log("Submitting:");
+
     try {
       const res = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify({
           nama_profile: formData.username,
@@ -40,13 +41,19 @@ console.log("Submitting:");
         return;
       }
 
+      // Cek apakah user ini admin
+      if (data.data.level_profile !== 'admin') {
+        setErrorMsg('Akun ini bukan admin. Silakan login di halaman user.');
+        return;
+      }
+
       // simpan user
       localStorage.setItem("isLogin", "true");
       localStorage.setItem("user", JSON.stringify(data.data));
 
       navigate("/admin/dashboard");
     } catch (err) {
-      alert("Server error");
+      setErrorMsg("Server error, tidak bisa terhubung ke server.");
       console.error(err);
     }
   };
