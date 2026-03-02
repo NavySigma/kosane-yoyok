@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
     )
     ->withMiddleware(function ($middleware) {
-    $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->api(append: [
+            \App\Http\Middleware\ForceJsonResponse::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {  
         //

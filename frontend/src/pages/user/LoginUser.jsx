@@ -19,16 +19,53 @@ export default function Login() {
     setSuccess("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, password } = formData;
     if (!username || !password) {
       setError("Username dan password wajib diisi.");
       return;
     }
+<<<<<<< HEAD
     setSuccess("Login berhasil!");
     localStorage.setItem("isLogin", "true");
     setTimeout(() => navigate("/admin/dashboard"), 1200);
+=======
+
+    try {
+      const res = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          nama_profile: username,
+          password: password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login gagal");
+        return;
+      }
+
+      // Cek apakah user ini member
+      if (data.data.level_profile !== 'user') {
+        setError('Akun ini bukan member. Silakan login di halaman admin.');
+        return;
+      }
+
+      setSuccess("Login berhasil!");
+      localStorage.setItem("isLogin", "true");
+      localStorage.setItem("user", JSON.stringify(data.data));
+      setTimeout(() => navigate("/"), 1200);
+    } catch (err) {
+      setError("Server error, silakan coba lagi nanti.");
+    }
+>>>>>>> 5eb6ca029fdd995b2e9f6693b2db7fffd07358be
   };
 
   return (
