@@ -14,7 +14,11 @@ class PenyewaController extends Controller
 {
     public function index()
     {
-        $kamar = Kamar::with(['sewaDetail.sewa.profile'])->get();
+        $kamar = Kamar::with(['sewaDetail' => function($q) {
+            $q->whereHas('sewa', function($q2){
+                $q2->where('is_active', 1);
+            });
+        }, 'sewaDetail.sewa.profile'])->get();
 
         $data = $kamar->map(function ($item) {
 
@@ -120,7 +124,11 @@ class PenyewaController extends Controller
             return response()->json([]);
         }
 
-        $sewaDetail = $kamar->sewaDetail->first();
+        $sewaDetail = $kamar->sewaDetail()
+        ->whereHas('sewa', function($q){
+            $q->where('is_active', 1);
+        })
+        ->first();
 
         if (!$sewaDetail) {
             return response()->json([]);
@@ -132,7 +140,7 @@ class PenyewaController extends Controller
             'sewa_berapa_bulan' => $sewaDetail->sewa_berapa_bulan ?? '',
             'metode_pembayaran' => $sewaDetail->metode_pembayaran ?? '',
             'catatan' => $sewaDetail->catatan ?? '',
-            'total_bayar' => $sewaDetail->cicilan ?? 0,
+            'cicilan' => $sewaDetail->cicilan ?? 0,
         ]);
     }
 
@@ -142,7 +150,11 @@ class PenyewaController extends Controller
 
     try {
         // ambil sewa detail berdasarkan kamar
-        $sewaDetail = SewaDetail::where('id_kamar_sewadetail', $id)->firstOrFail();
+        $sewaDetail = SewaDetail::where('id_kamar_sewadetail', $id)
+        ->whereHas('sewa', function($q){
+            $q->where('is_active', 1);
+        })
+        ->firstOrFail();
 
         // ambil sewa
         $sewa = Sewa::where('id_sewa', $sewaDetail->id_sewa_sewadetail)->firstOrFail();
@@ -179,4 +191,41 @@ class PenyewaController extends Controller
     }
 }
 
+
+    public function akhiriSewa($kamar_id)
+{
+    DB::beginTransaction();
+
+    try {
+        $sewaDetail = SewaDetail::where('id_kamar_sewadetail', $kamar_id)
+            ->whereHas('sewa', function ($q) {
+                $q->where('is_active', 1);
+            })
+            ->first();
+
+        if (!$sewaDetail) {
+            return response()->json(['error' => 'Data sewa tidak ditemukan'], 404);
+        }
+
+        $sewa = Sewa::findOrFail($sewaDetail->id_sewa_sewadetail);
+        $sewa->is_active = 0;
+        $sewa->save();
+
+        $kamar = Kamar::where('id_kamar', $kamar_id)->firstOrFail();
+        $kamar->status_kamar = 'tersedia';
+        $kamar->save();
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Sewa berhasil diakhiri'
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }

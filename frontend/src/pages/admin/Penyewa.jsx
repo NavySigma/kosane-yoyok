@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import usePenyewa from "../../hooks/admin/usePenyewa";
 
 function Spinner() {
   return (
@@ -9,311 +9,38 @@ function Spinner() {
   );
 }
 
-export default function Kamar() {   
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedKamar, setSelectedKamar] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [kamarList, setKamarList] = useState([]);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [showSuccessNotif, setShowSuccessNotif] = useState(false);
+export default function Penyewa() {
+  const {
+    isModalOpen, setIsModalOpen,
+    selectedKamar, setSelectedKamar,
+    loading, kamarList,
+    loadingDetail,
+    showSuccessNotif,
+    showConfirmEnd, setShowConfirmEnd,
+    endingLoading,
+    showEndSuccess,
 
-  useEffect(() => {
-  setLoading(true);
+    form, setForm,
+    addForm,
+    totalBayar,
+    sisaBayar,
 
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
-  const token = user?.token || "";
-
-  fetch("http://localhost:8000/api/penyewa", {
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setKamarList(data);
-    })
-    .catch((err) => {
-      console.error("Gagal ambil data kamar:", err);
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-  }, []);
-
-  const defaultAddForm = {
-  nama_penyewa: "",
-  no_telp: "",
-  tanggal_mulai: new Date().toISOString().split("T")[0],
-  sewa_berapa_bulan: 1,
-  metode_pembayaran: "transfer",
-  catatan: "",
-  };
-
-  const [form, setForm] = useState({
-    namaPenyewa: "",
-    noTelp: "",
-    noKamar: "",
-    jumlahPenyewa: 1,
-    metodeBayar: "",
-    totalBayar: "",
-    cicilan: 0,
-    catatan: "",
-  });
-
-    const [addForm, setAddForm] = useState(defaultAddForm);
-
-  useEffect(() => {
-    setAddForm((prev) => ({
-      ...prev,
-      tanggal_mulai: new Date().toISOString().split("T")[0],
-      metode_pembayaran: "transfer",
-    }));
-  }, []);
+    handleTambah,
+    handleInformasi,
+    handleUpdate,
+    handleAddChange,
+    handleSubmitAdd,
+    handleAkhiriSewa,
+  } = usePenyewa();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleTambah = (kamar) => {
-  setSelectedKamar(kamar);
-  setAddForm(defaultAddForm);
-  setIsModalOpen(true);
-  };
-
-  const handleInformasi = async (kamar) => {
-  setSelectedKamar(kamar);
-  setIsModalOpen(false);
-  setLoadingDetail(true);
-
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
-  const token = user?.token || "";
-
-  try {
-    const res = await fetch(
-      `http://localhost:8000/api/penyewa/kamar/${kamar.id}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      }
-    );
-
-    const data = await res.json();
-    console.log("DETAIL:", data);
-
-    if (!data || Object.keys(data).length === 0) {
-      setForm({
-        namaPenyewa: "",
-        noTelp: "",
-        jumlahPenyewa: "",
-        metodeBayar: "",
-        totalBayar: "",
-        catatan: "",
-      });
-      return;
-    }
-
-    setForm({
-      namaPenyewa: data.nama_profile,
-      noTelp: data.no_telp_profile,
-      jumlahPenyewa: data.sewa_berapa_bulan || 1,
-      metodeBayar: data.metode_pembayaran,
-      totalBayar: data.total_bayar,
-      catatan: data.catatan,
-    });
-
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoadingDetail(false);
-  }
-  };
-
-  const showSuccess = () => {
-  setShowSuccessNotif(true);
-  setTimeout(() => {
-    setShowSuccessNotif(false);
-  }, 2000);
-};
-
-  const handleUpdate = async () => {
-  if (!selectedKamar) return;
-
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
-  const token = user?.token || "";
-
-  try {
-    const res = await fetch(
-      `http://localhost:8000/api/penyewa/${selectedKamar.id}`,
-      {
-        method: "PUT", // atau PATCH
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          nama_profile: form.namaPenyewa,
-          no_telp_profile: form.noTelp,
-          sewa_berapa_bulan: Number(form.jumlahPenyewa),
-          metode_pembayaran: form.metodeBayar,
-          total_bayar: totalBayar,
-          cicilan: Number(form.cicilan),
-          catatan: form.catatan,
-        }),
-      }
-    );
-
-    const result = await res.json();
-    console.log("UPDATE:", result);
-    showSuccess(); // 🔥 munculin animasi
-  } catch (error) {
-    console.error("Gagal update:", error);
-  }
-  };
-
-  const handleAddChange = (e) => {
-  const { name, value } = e.target;
-  setAddForm((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-  }; 
-
-  const handleSubmitAdd = async () => {
-  if (!selectedKamar) return;
-
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
-  const token = user?.token || "";
-
-  const payload = {
-  kamar_id: selectedKamar.id,
-  nama_profile: addForm.nama_penyewa,
-  no_telp_profile: addForm.no_telp,
-  tglsewa_sewa: addForm.tanggal_mulai,
-  sewa_berapa_bulan: addForm.sewa_berapa_bulan,
-  metode_pembayaran: addForm.metode_pembayaran,
-  catatan: addForm.catatan,
-  };
-
-  try {
-    const res = await fetch("http://localhost:8000/api/penyewa", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await res.json();
-    console.log(result);
-
-    // update UI
-    setKamarList((prev) =>
-      prev.map((k) =>
-        Number(k.id) === Number(selectedKamar.id)
-          ? { ...k, status: "Disewa" }
-          : k
-      )
-    );
-
-    setSelectedKamar((prev) => ({
-      ...prev,
-      status: "disewa",
-    }));
-
-    setForm({
-      namaPenyewa: addForm.nama_penyewa,
-      noTelp: addForm.no_telp,
-      jumlahPenyewa: addForm.sewa_berapa_bulan || 1,
-      metodeBayar: addForm.metode_pembayaran,
-      catatan: addForm.catatan,
-      tanggalMulai: addForm.tanggal_mulai,
-      totalBayar: 0,
-    });
-
-    setIsModalOpen(false);
-
-    setAddForm(defaultAddForm);
-
-  } catch (error) {
-    console.error("Gagal simpan:", error);
-  }
-  };
-
   const handleCloseAll = () => {
-    setIsModalOpen(false);     // tutup modal
-    setSelectedKamar(null);    // tutup panel kanan
-    };
-
-  useEffect(() => {
-  if (selectedKamar) {
-    const jumlah = Number(form.jumlahPenyewa) || 1;
-    const harga = Number(selectedKamar.harga) || 0;
-
-    const total = jumlah * harga;
-
-    setForm((prev) => ({
-      ...prev,
-      totalBayar: total,
-    }));
-  }
-  }, [form.jumlahPenyewa, selectedKamar]);
-
-  const totalBayar =
-  (Number(form.jumlahPenyewa) || 1) * (Number(selectedKamar?.harga) || 0);
-
-  const sisaBayar = (totalBayar || 0) - (form.cicilan || 0);
-
-  const handleAkhiriSewa = async () => {
-  if (!selectedKamar) return;
-
-  const confirmDelete = window.confirm("Yakin mau akhiri sewa?");
-  if (!confirmDelete) return;
-
-  try {
-    const res = await fetch(
-      `http://localhost:8000/api/penyewa/${selectedKamar.id}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    const result = await res.json();
-    console.log("DELETE:", result);
-
-    // 🔥 update UI
-    setKamarList((prev) =>
-      prev.map((k) =>
-        Number(k.id) === Number(selectedKamar.id)
-          ? { ...k, status: "Tersedia" }
-          : k
-      )
-    );
-
-    // 🔥 reset state
+    setIsModalOpen(false);
     setSelectedKamar(null);
-    setForm({
-      namaPenyewa: "",
-      noTelp: "",
-      jumlahPenyewa: 1,
-      metodeBayar: "",
-      totalBayar: "",
-      cicilan: 0,
-      catatan: "",
-    });
-
-    showSuccess();
-
-  } catch (error) {
-    console.error("Gagal hapus:", error);
-  }
   };
 
   return (
@@ -485,17 +212,9 @@ export default function Kamar() {
         />
     </div>
 
-    {/* TOTAL */}
-    <p className="text-xs mt-1">
-        Total bayar :
-        <span className="font-bold ml-1">
-        Rp {totalBayar.toLocaleString("id-ID")}
-        </span>
-    </p>
-
     {/* SISA */}
     <p className="text-xs mt-1">
-        Sisa yang harus bayar :
+        Total yang harus dibayar :
         <span className={`font-bold ml-1 ${sisaBayar <= 0 ? "text-green-500" : "text-red-500"}`}>
         Rp {Math.max(sisaBayar, 0).toLocaleString("id-ID")}
         </span>
@@ -507,6 +226,7 @@ export default function Kamar() {
   <div className="md:col-span-2 flex justify-end gap-3 mt-4">
     <button
     type="button"
+    onClick={() => setShowConfirmEnd(true)}
     className="px-6 py-2 rounded-full bg-red-600 text-white"
     >
     Akhiri Sewa
@@ -677,6 +397,69 @@ export default function Kamar() {
       </div>
 
       <p className="mt-4 font-semibold text-gray-700">Berhasil disimpan</p>
+    </div>
+  </div>
+)}
+
+{showConfirmEnd && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[999]">
+    <div className="bg-white p-8 rounded-2xl shadow-xl text-center animate-scaleIn w-[320px]">
+      
+      <h2 className="text-lg font-semibold mb-3 text-gray-700">
+        Akhiri Sewa?
+      </h2>
+
+      <p className="text-sm text-gray-500 mb-6">
+        Data tidak akan dihapus, hanya status berubah
+      </p>
+
+      {endingLoading ? (
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-gray-200 border-t-red-500 rounded-full animate-spin"></div>
+          <span className="text-sm text-gray-400">Memproses...</span>
+        </div>
+      ) : (
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => setShowConfirmEnd(false)}
+            className="px-4 py-2 text-sm text-gray-500"
+          >
+            Batal
+          </button>
+
+          <button
+            onClick={handleAkhiriSewa}
+            className="px-5 py-2 bg-red-600 text-white rounded-full"
+          >
+            Lanjutkan
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{showEndSuccess && (
+  <div className="fixed inset-0 flex items-center justify-center z-[999]">
+    <div className="bg-white px-10 py-8 rounded-2xl shadow-xl flex flex-col items-center animate-scaleIn">
+      
+      {/* ICON CHECK */}
+      <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center animate-pop">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-8 h-8 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={3}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <p className="mt-4 font-semibold text-gray-700">
+        Sewa berhasil diakhiri
+      </p>
     </div>
   </div>
 )}
