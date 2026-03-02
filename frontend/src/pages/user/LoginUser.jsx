@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
-
+  
+  // State untuk mengontrol visibilitas password
+  const [showPassword, setShowPassword] = useState(false);
+  
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -18,10 +22,14 @@ export default function Login() {
     setSuccess("");
   };
 
+  // Fungsi untuk toggle visibilitas password
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, password } = formData;
-
     if (!username || !password) {
       setError("Username dan password wajib diisi.");
       return;
@@ -47,7 +55,6 @@ export default function Login() {
         return;
       }
 
-      // Cek apakah user ini member
       if (data.data.level_profile !== 'user') {
         setError('Akun ini bukan member. Silakan login di halaman admin.');
         return;
@@ -63,119 +70,102 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-300 font-sans p-4">
-      <style>
-        {`
-          @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-          }
-          .animate-smooth-in {
-            opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
-          }
-          .wave-top {
-            clip-path: url(#waveTopPath);
-          }
-          .wave-bottom {
-            clip-path: url(#waveBottomPath);
-          }
-        `}
-      </style>
+    <div className="min-h-screen flex items-center justify-center bg-[#D1D1C7] font-sans p-4">
+      {/* Container Utama - Mockup Device */}
+      <div className="relative w-[375px] h-[750px] bg-[#EBEBDF] rounded-[55px] shadow-2xl flex flex-col overflow-hidden border-[8px] border-white/20">
+        
+        {/* --- LAYER BACKGROUND (Presisi Foto) --- */}
+        
+        {/* Layer Putih (Kiri Atas) */}
+        <div 
+          className="absolute -top-10 -left-10 w-[80%] h-[40%] bg-white/50 -z-0"
+          style={{ clipPath: 'ellipse(60% 50% at 30% 30%)' }}
+        ></div>
 
-      {/* SVG Path Definitions */}
-      <svg width="0" height="0" className="absolute">
-        <defs>
-          <clipPath id="waveTopPath" clipPathUnits="objectBoundingBox">
-            <path d="M0,0 H1 V0.75 C0.7,0.95 0.3,0.65 0,0.85 V0 Z" />
-          </clipPath>
-          <clipPath id="waveBottomPath" clipPathUnits="objectBoundingBox">
-            <path d="M0,0.3 C0.3,0.1 0.7,0.4 1,0.2 V1 H0 V0.3 Z" />
-          </clipPath>
-        </defs>
-      </svg>
+        {/* Layer Krem Gelap (Gundukan Kanan) */}
+        <div 
+          className="absolute top-[15%] -right-16 w-[100%] h-[45%] bg-[#E2E2D3] -z-0"
+          style={{ clipPath: 'ellipse(75% 55% at 85% 50%)' }}
+        ></div>
 
-      {/* MAIN CONTAINER */}
-      <div className="relative w-[380px] h-[780px] bg-[#EBEBDF] overflow-hidden rounded-[45px] shadow-2xl flex flex-col">
-        {/* ===== HEADER SECTION (BIRU 1A1265) ===== */}
-        <div className="wave-top relative h-[42%] bg-[#1A1265] flex flex-col items-center pt-14">
-          {/* Ornamen Lingkaran */}
-          <div className="absolute top-[-30px] left-[-30px] w-44 h-44 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="absolute top-20 right-[-20px] w-36 h-36 bg-white/5 rounded-full blur-xl"></div>
+        {/* --- KONTEN UTAMA --- */}
+        <div className="relative z-10 flex-1 px-8 pt-16 flex flex-col">
+          {/* Header */}
+          <div className="mb-6 ml-2"> {/* Sedikit padding kiri agar sejajar */}
+            <h1 className="text-[44px] font-bold text-[#1A1A1A] leading-tight tracking-tight">Login</h1>
+            <p className="text-[#666666] text-[14px] leading-tight mt-1 max-w-[210px]">
+              Access your account and simplify your stay.
+            </p>
+          </div>
 
-          {/* Logo Container */}
-          <div className="relative z-10 w-32 h-32 bg-[#EBEBDF] rounded-full border-[8px] border-white/20 flex items-center justify-center shadow-lg overflow-hidden">
-            <img
-              src="/logokost.png"
-              alt="Logo"
-              className="w-full h-full rounded-full object-cover"
+          {/* Ilustrasi Center dengan Glow - DIGESER LEBIH KE KIRI */}
+          <div className="flex justify-start items-center mb-6 relative py-4 pl-4"> {/* pl-4 untuk geser lebih jauh */}
+            <div className="absolute w-40 h-40 bg-white/40 blur-3xl rounded-full left-2"></div> {/* Glow ikut geser */}
+            <img 
+              src="/userhp.png" 
+              alt="Illustration" 
+              className="w-44 h-44 object-contain relative z-10"
+              onError={(e) => { e.target.src = "https://placeholder.pics/svg/200x200/DEDEDE/555555/IMG"; }}
             />
           </div>
-        </div>
 
-        {/* ===== FORM SECTION (PUTIH/EBEBDF) ===== */}
-        <div className="flex-1 px-10 -mt-4 relative z-20 text-center">
-          <h2 className="text-3xl font-bold text-[#1A1265] mb-8 animate-smooth-in">
-            Login
-          </h2>
+          {/* Form Section */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+            {/* Input Username */}
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full bg-white rounded-[18px] px-6 py-[17px] text-gray-800 placeholder-gray-400 focus:outline-none shadow-sm"
+            />
 
-          <form onSubmit={handleSubmit} className="space-y-4 text-left">
-            <div
-              className="animate-smooth-in"
-              style={{ animationDelay: "0.2s" }}
-            >
+            {/* Input Password - DENGAN EYE ICON BERFUNGSI */}
+            <div className="relative">
               <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full border-2 border-[#1A1265] bg-transparent rounded-full px-6 py-3 text-[#1A1265] placeholder-[#1A1265]/60 outline-none transition-all"
-              />
-            </div>
-
-            <div
-              className="animate-smooth-in"
-              style={{ animationDelay: "0.3s" }}
-            >
-              <input
-                type="password"
+                type={showPassword ? "text" : "password"} // Tipe input berubah berdasarkan state
                 name="password"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border-2 border-[#1A1265] bg-transparent rounded-full px-6 py-3 text-[#1A1265] placeholder-[#1A1265]/60 outline-none transition-all"
+                className="w-full bg-white rounded-[18px] px-6 py-[17px] text-gray-800 placeholder-gray-400 focus:outline-none shadow-sm"
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility} // Fungsi untuk toggle state
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 opacity-80 hover:text-gray-600 transition-colors"
+              >
+                {/* Ikon berubah berdasarkan state */}
+                {showPassword ? (
+                  <EyeOff size={20} strokeWidth={2} />
+                ) : (
+                  <Eye size={20} strokeWidth={2} />
+                )}
+              </button>
             </div>
 
-            <p
-              className="text-center text-sm text-[#1A1265] animate-smooth-in"
-              style={{ animationDelay: "0.4s" }}
-            >
-              Don't have an account?{" "}
-              <Link to="/register" className="font-bold underline">
-                Register
-              </Link>
-            </p>
-
-            {error && (
-              <p className="text-red-600 text-center text-[11px] font-bold">
-                {error}
+            {/* Link Text */}
+            <div className="mt-1 ml-1">
+              <p className="text-[13px] text-gray-600">
+                Don't have an account?{" "}
+                <Link to="/register" className="font-bold text-black hover:underline">
+                  Register
+                </Link>
               </p>
-            )}
-            {success && (
-              <p className="text-green-700 text-center text-[11px] font-bold">
-                {success}
-              </p>
-            )}
+            </div>
 
-            <div
-              className="animate-smooth-in"
-              style={{ animationDelay: "0.5s" }}
-            >
+            {/* Feedback Message */}
+            <div className="h-4 flex items-center justify-center">
+              {error && <p className="text-red-500 text-[11px] font-bold text-center">{error}</p>}
+              {success && <p className="text-green-600 text-[11px] font-bold text-center">{success}</p>}
+            </div>
+
+            {/* Tombol Login */}
+            <div className="mt-4">
               <button
                 type="submit"
-                className="w-full bg-[#1A1265] text-[#EBEBDF] py-3 rounded-full font-bold text-lg active:scale-95 transition-all shadow-md mt-2"
+                className="w-full bg-white text-[#0066FF] py-[16px] rounded-[18px] font-bold text-[20px] shadow-[0_8px_20px_rgba(0,0,0,0.05)] active:scale-[0.98] transition-all"
               >
                 Login
               </button>
@@ -183,30 +173,8 @@ export default function Login() {
           </form>
         </div>
 
-        {/* ===== FOOTER SECTION (BIRU 1A1265) ===== */}
-        <div className="wave-bottom relative h-[28%] bg-[#1A1265] flex flex-col justify-end p-8 pb-10 text-[#EBEBDF]">
-          <div className="mb-3 w-12 h-12 bg-[#EBEBDF] rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20 opacity-90">
-            <img 
-              src="/logokost.png" 
-              alt="Logo Kost" 
-              className="w-full h-full rounded-full object-cover" 
-            />
-          </div>
-
-          <div className="text-[10px] leading-tight space-y-2 opacity-90">
-            <div className="flex items-start gap-2">
-              <img src="/lokasi.png" alt="Lokasi" className="w-3 h-3 mt-0.5" />
-              <p>
-                Kost Pak Yoyok, Putuk Rejo, Kemantren, Kec. Jabung, Kabupaten
-                Malang, Jawa Timur 65155
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <img src="/telp.png" alt="Telepon" className="w-3 h-3" />
-              <p>+62 813-3121-7162</p>
-            </div>
-          </div>
-        </div>
+        {/* Space Bawah */}
+        <div className="h-10"></div>
       </div>
     </div>
   );
