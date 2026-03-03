@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_sewa');
             $table->unsignedBigInteger('id_profile_sewa');
             $table->date('tglsewa_sewa');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->foreign('id_profile_sewa')

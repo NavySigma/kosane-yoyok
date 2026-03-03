@@ -46,29 +46,6 @@ input:focus {
   @apply w-full border border-gray-300 rounded-full px-4 py-2 text-sm;
 }
 
-@keyframes scaleIn {
-  0% {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes pop {
-  0% {
-    transform: scale(0);
-  }
-  80% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 .animate-scaleIn {
   animation: scaleIn 0.25s ease-out;
 }

@@ -11,7 +11,8 @@ class Sewa extends Model
 
     protected $fillable = [
         'id_profile_sewa',
-        'tglsewa_sewa'
+        'tglsewa_sewa',
+        'is_active'
     ];
 
     public function profile()
