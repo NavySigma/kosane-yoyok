@@ -68,6 +68,8 @@ export default function LineChart() {
               dy={10}
             />
             <YAxis
+              domain={[0, 5]}
+              ticks={[0, 1, 2, 3, 4, 5]}
               allowDecimals={false}
               axisLine={false}
               tickLine={false}
