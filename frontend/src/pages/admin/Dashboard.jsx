@@ -42,7 +42,7 @@ export default function Dashboard() {
   return (
     <div className="p-6 pt-20">
       {/* CHART */}
-      <div className="bg-white rounded-2xl p-6 drop-shadow-lg">
+      <div className="bg-white rounded-2xl p-6 drop-shadow-lg h-[380px]">
         <div className="flex flex-col items-start mb-4 gap-1">
           <h2 className="font-bold text-[#1E1B6D]">Sewa Aktif</h2>
           <span className="px-4 py-1 text-xs bg-[#1E1B6D] text-white rounded-lg">
@@ -55,19 +55,19 @@ export default function Dashboard() {
       {/* STAT */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <StatCard
-          title="Pemasukan"
+          title="Pemasukan Bulan Ini"
           value={
             loading
               ? "Loading..."
-              : `Rp ${dashboard.pemasukan.toLocaleString("id-ID")}`
+              : `Rp ${Number(dashboard.pemasukan || 0).toLocaleString("id-ID")}`
           }
         />
         <StatCard
-          title="Pengeluaran"
+          title="Pengeluaran Bulan Ini"
           value={
             loading
               ? "Loading..."
-              : `Rp ${dashboard.pengeluaran.toLocaleString("id-ID")}`
+              : `Rp ${Number(dashboard.pengeluaran || 0).toLocaleString("id-ID")}`
           }
         />
         <StatCard

@@ -14,6 +14,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [BerandaController::class, 'index']);
 
     Route::get('/kamar', [KamarController::class, 'index']);
+    Route::post('/kamar', [KamarController::class, 'store']);
+    Route::put('/kamar/{id}', [KamarController::class, 'update']);
 
     Route::get('/penyewa', [PenyewaController::class, 'index']);
     Route::put('/penyewa/{id}', [PenyewaController::class, 'update']);

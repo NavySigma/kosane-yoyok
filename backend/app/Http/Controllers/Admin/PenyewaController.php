@@ -34,7 +34,9 @@ class PenyewaController extends Controller
                         'nama' => $sewaDetail->sewa->profile->nama_profile ?? '-',
                         'telp' => $sewaDetail->sewa->profile->no_telp_profile ?? '-',
                         'sewabrpbulan' => $sewaDetail->sewa_berapa_bulan,
-                        'catatan' => '-'
+                        'metodepembayaran' => $sewaDetail->metode_pembayaran,
+                        'cicilan' => $sewaDetail->cicilan,
+                        'catatan' => $sewaDetail->catatan,
                     ]
                 ];
             }
@@ -69,11 +71,18 @@ class PenyewaController extends Controller
 
     try {
         // 1. PROFILE
-        $profile = Profile::create([
-            'nama_profile' => $request->nama_profile,
-            'no_telp_profile' => $request->no_telp_profile,
-            'password_profile' => bcrypt($request->password_profile ?? '123'),
-        ]);
+        $profile = Profile::firstOrCreate(
+            ['nama_profile' => $request->nama_profile],
+            [
+                'no_telp_profile' => $request->no_telp_profile,
+                'password_profile' => bcrypt($request->password_profile ?? '123'),
+            ]
+        );
+        if (!$profile->wasRecentlyCreated) {
+            $profile->update([
+                'no_telp_profile' => $request->no_telp_profile,
+            ]);
+        }
 
         // 2. SEWA
         $sewa = Sewa::create([
@@ -209,6 +218,7 @@ class PenyewaController extends Controller
 
         $sewa = Sewa::findOrFail($sewaDetail->id_sewa_sewadetail);
         $sewa->is_active = 0;
+        $sewa->tglselesai_sewa = now();
         $sewa->save();
 
         $kamar = Kamar::where('id_kamar', $kamar_id)->firstOrFail();

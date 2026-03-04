@@ -13,6 +13,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Keuangan from "./pages/admin/Keuangan";
 import Riwayat from "./pages/admin/Riwayat";
 import Penyewa from "./pages/admin/Penyewa";
+import Kamar from "./pages/admin/Kamar";
 
 /* ================= USER (AUTH) ================= */
 import LoginUser from "./pages/user/LoginUser";
@@ -64,6 +65,7 @@ export default function App() {
           <Route path="/admin/keuangan" element={<Keuangan />} />
           <Route path="/admin/riwayat" element={<Riwayat />} />
           <Route path="/admin/penyewa" element={<Penyewa />} />
+          <Route path="/admin/kamar" element={<Kamar />} />
         </Route>
 
         {/* ================= DEFAULT REDIRECT ================= */}
