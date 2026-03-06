@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->string('nama_pesurvei');
             $table->enum('status_survei', ['pending','finish','expired'])->default('pending');
+            $table->date('tgl_survei');
             $table->text('catatan')->nullable();
             $table->timestamps();
         });

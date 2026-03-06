@@ -14,6 +14,7 @@ class DashboardController extends Controller
             'id_profile_survei' => 'required|exists:profile,id_profile',
             'nama_pesurvei' => 'required|string',
             'status_survei' => 'required|in:pending,finish,expired',
+            'tgl_survei' => 'required|date',
             'catatan' => 'nullable|string',
         ]);
 

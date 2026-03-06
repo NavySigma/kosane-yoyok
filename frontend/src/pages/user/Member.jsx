@@ -4,7 +4,6 @@ import {
   Calendar,
   Plus,
   Bed,
-  Box,
   Wifi,
   Zap,
   Utensils,
@@ -21,15 +20,27 @@ import {
 
 export default function MemberPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // State Dark Mode
+  const [darkMode, setDarkMode] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState("booking");
   const [activeDot, setActiveDot] = useState(0);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const scrollRef = useRef(null);
+  const [formSurvei, setFormSurvei] = useState({
+  nama_pesurvei: "",
+  tgl_survei: "",
+  catatan: ""
+  });
 
-  // Template PesAN WA untuk Member
+  const handleChange = (e) => {
+  setFormSurvei({
+    ...formSurvei,
+    [e.target.name]: e.target.value
+  });
+};
+
   const waNumber = "6285708128392";
   const waMessage = encodeURIComponent(
-    "Halo Admin Kost Pak Yoyok,\n\nSaya Member atas nama: \nIngin konfirmasi mengenai: (Pembayaran/Kendala Fasilitas/Lainnya)\n\nTerima kasih.",
+    "Halo Admin Kost Pak Yoyok,\n\nSaya Member atas nama: \nIngin konfirmasi mengenai: (Pembayaran/Kendala Fasilitas/Lainnya)\n\nTerima kasih."
   );
 
   const galleryImages = [
@@ -93,7 +104,7 @@ export default function MemberPage() {
           if (entry.isIntersecting) entry.target.classList.add("show");
         });
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
     elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
@@ -103,15 +114,49 @@ export default function MemberPage() {
     setActiveAccordion(activeAccordion === id ? null : id);
   };
 
+  const submitSurvei = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://127.0.0.1:8000/api/survei", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        id_profile_survei: 1,
+        status_survei: "pending",
+        ...formSurvei
+      }),
+    });
+
+    const data = await response.json();
+
+    alert("Request visit berhasil dikirim!");
+
+    setFormSurvei({
+      nama_pesurvei: "",
+      tgl_survei: "",
+      catatan: ""
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+  };
+
   return (
     <div
-      className={`${darkMode ? "bg-[#121212] text-white" : "bg-white text-[#333]"} font-sans overflow-x-hidden transition-colors duration-500 scroll-smooth`}
+      className={`${
+        darkMode ? "bg-[#121212] text-white" : "bg-white text-[#333]"
+      } font-sans overflow-x-hidden transition-colors duration-500 scroll-smooth`}
     >
       <style>
         {`
         .fade-up { opacity: 0; transform: translateY(30px); transition: all .8s ease-out; }
         .fade-up.show { opacity: 1; transform: translateY(0); }
-        .hero-gradient { background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)); }
+        .hero-gradient { background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .gallery-container-mask {
@@ -134,47 +179,38 @@ export default function MemberPage() {
       {/* ================= NAVBAR ================= */}
       <nav className="fixed top-4 left-0 right-0 z-[100] flex justify-center px-4">
         <div
-          className={`${darkMode ? "bg-black/40 border-white/10" : "bg-white/80 border-white/40"} backdrop-blur-2xl w-full max-w-[95%] md:max-w-fit px-6 py-3 rounded-full flex justify-between items-center gap-6 shadow-lg border transition-colors duration-500`}
+          className={`${
+            darkMode ? "bg-black/60 border-white/10" : "bg-white/80 border-white/40"
+          } backdrop-blur-2xl w-full max-w-[95%] md:max-w-fit px-6 py-3 rounded-full flex justify-between items-center gap-6 shadow-lg border transition-all duration-500`}
         >
           <span className="md:hidden font-black italic text-[12px] tracking-tighter uppercase">
             Member Area
           </span>
 
           <div className="hidden md:flex gap-8 items-center">
-            <a
-              href="#home"
-              className="text-[11px] font-black uppercase tracking-widest hover:text-[#B6FF40] transition"
-            >
-              Home
-            </a>
-            <a
-              href="#features"
-              className="text-[11px] font-black uppercase tracking-widest hover:text-[#B6FF40] transition"
-            >
-              About
-            </a>
-            <a
-              href="#tour"
-              className="text-[11px] font-black uppercase tracking-widest hover:text-[#B6FF40] transition"
-            >
-              Visit
-            </a>
-            <a
-              href="#booking"
-              className="text-[11px] font-black uppercase tracking-widest hover:text-[#B6FF40] transition"
-            >
-              Booking
-            </a>
+            {["home", "features", "tour", "booking"].map((item) => (
+              <a
+                key={item}
+                href={`#${item}`}
+                className="text-[11px] font-black uppercase tracking-widest hover:text-[#B6FF40] transition"
+              >
+                {item}
+              </a>
+            ))}
 
             <button
               onClick={toggleDarkMode}
-              className={`p-2 rounded-full transition-all ${darkMode ? "bg-white/10 text-yellow-400" : "bg-black/5 text-gray-600 hover:bg-black/10"}`}
+              className={`p-2 rounded-full transition-all ${
+                darkMode ? "bg-white/10 text-yellow-400" : "bg-black/5 text-gray-600 hover:bg-black/10"
+              }`}
             >
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
             <div
-              className={`flex items-center gap-2 px-3 py-1 rounded-full border ${darkMode ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200"}`}
+              className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
+                darkMode ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200"
+              }`}
             >
               <div className="w-5 h-5 bg-[#B6FF40] rounded-full flex items-center justify-center text-[9px] font-black text-black">
                 M
@@ -185,11 +221,7 @@ export default function MemberPage() {
 
           <div className="flex md:hidden items-center gap-4">
             <button onClick={toggleDarkMode} className="p-2">
-              {darkMode ? (
-                <Sun size={20} className="text-yellow-400" />
-              ) : (
-                <Moon size={20} />
-              )}
+              {darkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
             </button>
             <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -199,42 +231,30 @@ export default function MemberPage() {
 
         {isMenuOpen && (
           <div
-            className={`absolute top-16 left-4 right-4 ${darkMode ? "bg-[#1A1A1A] border-white/10 text-white" : "bg-white border-gray-100"} rounded-3xl p-6 shadow-2xl flex flex-col gap-4 md:hidden`}
+            className={`absolute top-20 left-4 right-4 ${
+              darkMode ? "bg-[#1A1A1A] border-white/10 text-white" : "bg-white border-gray-100"
+            } rounded-3xl p-6 shadow-2xl flex flex-col gap-4 md:hidden animate-in fade-in zoom-in-95`}
           >
-            <a
-              href="#home"
-              onClick={() => setIsMenuOpen(false)}
-              className="font-bold border-b border-gray-100 pb-2"
-            >
-              Home
-            </a>
-            <a
-              href="#features"
-              onClick={() => setIsMenuOpen(false)}
-              className="font-bold border-b border-gray-100 pb-2"
-            >
-              About
-            </a>
-            <a
-              href="#booking"
-              onClick={() => setIsMenuOpen(false)}
-              className="font-bold"
-            >
-              Booking
-            </a>
+            {["home", "features", "booking"].map((item) => (
+              <a
+                key={item}
+                href={`#${item}`}
+                onClick={() => setIsMenuOpen(false)}
+                className="font-bold border-b border-gray-100/10 pb-2 uppercase text-sm tracking-widest"
+              >
+                {item}
+              </a>
+            ))}
           </div>
         )}
       </nav>
 
       {/* ================= HERO SECTION ================= */}
-      <section
-        id="home"
-        className="relative h-[85vh] w-full flex items-center justify-center"
-      >
+      <section id="home" className="relative h-[85vh] w-full flex items-center justify-center">
         <img
           src="/image2.jpeg"
           className="absolute inset-0 w-full h-full object-cover"
-          alt="Hero"
+          alt="Hero Interior Kost"
         />
         <div className="absolute inset-0 hero-gradient"></div>
         <div className="relative z-10 text-white text-left px-8 md:px-20 w-full max-w-7xl fade-up">
@@ -243,12 +263,15 @@ export default function MemberPage() {
             <span className="text-[#B6FF40]">perfect</span> stay
           </h1>
           <p className="text-sm md:text-xl opacity-90 max-w-md font-medium">
-            Welcome back to your member dashboard. Manage your stay and bookings
-            easily.
+            Welcome back to your member dashboard. Manage your stay and bookings easily.
           </p>
         </div>
         <div
-          className={`absolute bottom-10 right-8 ${darkMode ? "bg-black/80 text-white" : "bg-white/95 text-[#1A1A1A]"} backdrop-blur-md p-6 rounded-[32px] shadow-2xl border ${darkMode ? "border-white/10" : "border-white"} fade-up`}
+          className={`absolute bottom-10 right-8 ${
+            darkMode ? "bg-black/80 text-white" : "bg-white/95 text-[#1A1A1A]"
+          } backdrop-blur-md p-6 rounded-[32px] shadow-2xl border ${
+            darkMode ? "border-white/10" : "border-white"
+          } fade-up`}
         >
           <p className="text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase mb-1">
             Starting from
@@ -264,12 +287,11 @@ export default function MemberPage() {
       <section id="features" className="py-24 px-6 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
-            className={`${darkMode ? "bg-white/5 border border-white/5 text-white" : "bg-[#F9F9F7] text-black"} rounded-[40px] p-10 fade-up`}
+            className={`${
+              darkMode ? "bg-white/5 border border-white/5 text-white" : "bg-[#F9F9F7] text-black"
+            } rounded-[40px] p-10 fade-up`}
           >
-            <Bed
-              className={`${darkMode ? "text-[#B6FF40]" : "text-black"} mb-6`}
-              size={24}
-            />
+            <Bed className={`${darkMode ? "text-[#B6FF40]" : "text-black"} mb-6`} size={24} />
             <h3 className="text-2xl font-black mb-6 italic tracking-tight uppercase">
               Room Features
             </h3>
@@ -282,12 +304,11 @@ export default function MemberPage() {
             </ul>
           </div>
           <div
-            className={`${darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"} rounded-[40px] p-10 fade-up`}
+            className={`${
+              darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"
+            } rounded-[40px] p-10 fade-up`}
           >
-            <Wifi
-              className={`${darkMode ? "text-black" : "text-[#B6FF40]"} mb-6`}
-              size={24}
-            />
+            <Wifi className={`${darkMode ? "text-black" : "text-[#B6FF40]"} mb-6`} size={24} />
             <h3 className="text-2xl font-black mb-6 italic tracking-tight uppercase">
               Shared Facilities
             </h3>
@@ -311,15 +332,13 @@ export default function MemberPage() {
       {/* ================= INFINITE TOUR ================= */}
       <section
         id="tour"
-        className={`py-20 ${darkMode ? "bg-[#0A0A0A]" : "bg-[#F9F9F7]"} overflow-hidden transition-colors`}
+        className={`py-20 ${
+          darkMode ? "bg-[#0A0A0A]" : "bg-[#F9F9F7]"
+        } overflow-hidden transition-colors`}
       >
         <div className="max-w-6xl mx-auto px-6 mb-10 fade-up">
-          <h2 className="text-4xl font-black italic tracking-tighter uppercase">
-            Take a tour
-          </h2>
-          <p className="text-gray-400 font-medium">
-            Explore our rooms and shared spaces.
-          </p>
+          <h2 className="text-4xl font-black italic tracking-tighter uppercase">Take a tour</h2>
+          <p className="text-gray-400 font-medium">Explore our rooms and shared spaces.</p>
         </div>
         <div className="relative gallery-container-mask">
           <div
@@ -330,12 +349,14 @@ export default function MemberPage() {
             {infiniteImages.map((img, i) => (
               <div
                 key={i}
-                className={`w-[85vw] md:w-[500px] h-[450px] flex-shrink-0 snap-center rounded-[40px] overflow-hidden shadow-2xl ${darkMode ? "bg-white/5" : "bg-gray-200"}`}
+                className={`w-[85vw] md:w-[500px] h-[450px] flex-shrink-0 snap-center rounded-[40px] overflow-hidden shadow-2xl ${
+                  darkMode ? "bg-white/5" : "bg-gray-200"
+                }`}
               >
                 <img
                   src={img}
                   className="w-full h-full object-cover pointer-events-none"
-                  alt="tour"
+                  alt={`Tour gallery ${i}`}
                 />
               </div>
             ))}
@@ -344,7 +365,13 @@ export default function MemberPage() {
             {galleryImages.map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${activeDot === i ? (darkMode ? "w-10 bg-[#B6FF40]" : "w-10 bg-black") : "w-2 bg-gray-300"}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeDot === i
+                    ? darkMode
+                      ? "w-10 bg-[#B6FF40]"
+                      : "w-10 bg-black"
+                    : "w-2 bg-gray-300"
+                }`}
               />
             ))}
           </div>
@@ -352,18 +379,18 @@ export default function MemberPage() {
       </section>
 
       {/* ================= MAP SECTION ================= */}
-      <section
-        className={`py-24 ${darkMode ? "bg-[#121212]" : "bg-white"} text-center px-6`}
-      >
+      <section className={`py-24 ${darkMode ? "bg-[#121212]" : "bg-white"} text-center px-6`}>
         <h2 className="text-3xl font-black italic mb-10 tracking-tighter fade-up uppercase">
           Visit Our Space
         </h2>
         <div
-          className={`max-w-6xl mx-auto rounded-[50px] overflow-hidden shadow-2xl border-[12px] ${darkMode ? "border-[#1A1A1A]" : "border-white"} h-[400px] md:h-[600px] fade-up`}
+          className={`max-w-6xl mx-auto rounded-[50px] overflow-hidden shadow-2xl border-[12px] ${
+            darkMode ? "border-[#1A1A1A]" : "border-white"
+          } h-[400px] md:h-[600px] fade-up`}
         >
           <iframe
-            title="map"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.868123456789!2d112.7!3d-7.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNTQnMDAuMCJTIDExMsKwNDInMDAuMCJF!5e0!3m2!1sen!2sid!4v1234567890"
+            title="Kost Location"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.789143615286!2d112.7231464!3d-7.9170942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNTUnMDEuNSJTIDExMsKwNDMnMjMuMyJF!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
             width="100%"
             height="100%"
             style={{
@@ -379,44 +406,52 @@ export default function MemberPage() {
       {/* ================= ACTIONS & HISTORY ================= */}
       <section id="booking" className="max-w-2xl mx-auto px-6 pb-24 space-y-2">
         {/* Accordion 1: Visit */}
-        <div
-          className={`border-b ${darkMode ? "border-white/5" : "border-gray-100"}`}
-        >
+        <div className={`border-b ${darkMode ? "border-white/5" : "border-gray-100"}`}>
           <button
             onClick={() => toggleAccordion("visit")}
             className="w-full flex justify-between items-center py-6 group"
           >
             <span
-              className={`font-bold text-lg ${darkMode ? "group-hover:text-[#B6FF40]" : "group-hover:text-blue-600"} transition-colors uppercase`}
+              className={`font-bold text-lg ${
+                darkMode ? "group-hover:text-[#B6FF40]" : "group-hover:text-blue-600"
+              } transition-colors uppercase`}
             >
               Book a site visit
             </span>
             <ChevronDown
               size={20}
-              className={`text-gray-300 transition-transform ${activeAccordion === "visit" ? "rotate-180" : ""}`}
+              className={`text-gray-300 transition-transform ${
+                activeAccordion === "visit" ? "rotate-180" : ""
+              }`}
             />
           </button>
           {activeAccordion === "visit" && (
-            <div className="pb-8 space-y-4 animate-in slide-in-from-top-2">
+            <div className="pb-8 space-y-4 animate-in slide-in-from-top-2 duration-300">
               <input
-                type="text"
-                placeholder="Full Name"
-                className={`w-full border rounded-2xl p-4 text-sm outline-none ${darkMode ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-200"}`}
-              />
+              type="text"
+              name="nama_pesurvei"
+              placeholder="Full Name"
+              value={formSurvei.nama_pesurvei}
+              onChange={handleChange}
+              className="w-full border rounded-2xl p-4 text-sm"
+            />
               <div className="relative">
                 <input
-                  type="text"
-                  placeholder="Preferred Date"
-                  className={`w-full border rounded-2xl p-4 text-sm outline-none ${darkMode ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-200"}`}
-                />
-                <Calendar
-                  size={18}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  type="date"
+                  name="tgl_survei"
+                  value={formSurvei.tgl_survei}
+                  onChange={handleChange}
+                  className={`w-full border rounded-2xl p-4 text-sm outline-none ${
+                    darkMode ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-200"
+                  }`}
                 />
               </div>
               <textarea
-                placeholder="Additional Notes (e.g. jam kedatangan spesifik, jumlah orang, atau pertanyaan lainnya...)"
+                name="catatan"
+                placeholder="Additional Notes..."
                 rows="4"
+                value={formSurvei.catatan}
+                onChange={handleChange}
                 className={`w-full border rounded-2xl p-4 text-sm outline-none resize-none transition-all ${
                   darkMode
                     ? "bg-white/5 border-white/10 text-white focus:border-[#B6FF40]"
@@ -424,7 +459,12 @@ export default function MemberPage() {
                 }`}
               />
               <button
-                className={`w-full py-4 font-bold rounded-2xl text-sm transition ${darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"}`}
+                onClick={submitSurvei}
+                className={`w-full py-4 font-bold rounded-2xl text-sm transition active:scale-[0.98] ${
+                  darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"
+                }`}
+
+
               >
                 Request Visit
               </button>
@@ -433,108 +473,107 @@ export default function MemberPage() {
         </div>
 
         {/* Accordion 2: Make It Yours */}
-        <div
-          className={`border-b ${darkMode ? "border-white/5" : "border-gray-100"}`}
-        >
+        <div className={`border-b ${darkMode ? "border-white/5" : "border-gray-100"}`}>
           <button
             onClick={() => toggleAccordion("booking")}
             className="w-full flex justify-between items-center py-6 group"
           >
             <span
-              className={`font-bold text-lg ${darkMode ? "group-hover:text-[#B6FF40]" : "group-hover:text-blue-600"} transition-colors uppercase`}
+              className={`font-bold text-lg ${
+                darkMode ? "group-hover:text-[#B6FF40]" : "group-hover:text-blue-600"
+              } transition-colors uppercase`}
             >
               Make it yours
             </span>
             <ChevronDown
               size={20}
-              className={`text-gray-300 transition-transform ${activeAccordion === "booking" ? "rotate-180" : ""}`}
+              className={`text-gray-300 transition-transform ${
+                activeAccordion === "booking" ? "rotate-180" : ""
+              }`}
             />
           </button>
           {activeAccordion === "booking" && (
-            <div className="pb-8 space-y-6 animate-in slide-in-from-top-2">
+            <div className="pb-8 space-y-6 animate-in slide-in-from-top-2 duration-300">
               <div
-                className={`border rounded-[30px] p-6 ${darkMode ? "bg-white/5 border-white/5" : "bg-[#F9F9F7] border-gray-100"}`}
+                className={`border rounded-[30px] p-6 ${
+                  darkMode ? "bg-white/5 border-white/5" : "bg-[#F9F9F7] border-gray-100"
+                }`}
               >
                 <p className="text-[11px] font-black uppercase tracking-tighter mb-4 text-gray-400">
                   Room Availability
                 </p>
                 <div className="space-y-3">
-                  {[
-                    "Room 01",
-                    "Room 02",
-                    "Room 03 — Available",
-                    "Room 04 — Available",
-                  ].map((room, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center text-[12px] font-bold"
-                    >
-                      <span
-                        className={
-                          room.includes("Available")
-                            ? darkMode
-                              ? "text-white"
-                              : "text-black"
-                            : "text-gray-500"
-                        }
-                      >
-                        {room}
-                      </span>
-                      <button
-                        className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${room.includes("Available") ? "bg-[#B6FF40] text-black" : "bg-gray-100 text-gray-300 cursor-not-allowed"}`}
-                      >
-                        {room.includes("Available") ? "Select" : "Full"}
-                      </button>
-                    </div>
-                  ))}
+                  {["Room 01", "Room 02", "Room 03 — Available", "Room 04 — Available"].map(
+                    (room, i) => (
+                      <div key={i} className="flex justify-between items-center text-[12px] font-bold">
+                        <span
+                          className={
+                            room.includes("Available")
+                              ? darkMode
+                                ? "text-white"
+                                : "text-black"
+                              : "text-gray-500 opacity-50"
+                          }
+                        >
+                          {room}
+                        </span>
+                        <button
+                          onClick={() => room.includes("Available") && setSelectedRoom(room)}
+                          className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${
+                            room.includes("Available")
+                              ? selectedRoom === room
+                                ? "bg-white text-black scale-110"
+                                : "bg-[#B6FF40] text-black hover:scale-105"
+                              : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                          }`}
+                        >
+                          {room.includes("Available") ? (selectedRoom === room ? "Selected" : "Select") : "Full"}
+                        </button>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
+              
               <div
-                className={`border rounded-[30px] p-6 shadow-sm space-y-4 ${darkMode ? "bg-black border-white/10" : "bg-white border-gray-100"}`}
+                className={`border rounded-[30px] p-6 shadow-sm space-y-4 ${
+                  darkMode ? "bg-black border-white/10" : "bg-white border-gray-100"
+                }`}
               >
                 <p className="font-bold italic text-sm">Payment Details</p>
                 <div className="space-y-2 text-[13px]">
-                  <div className="flex justify-between text-gray-400">
-                    Bank:{" "}
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"} font-bold`}
-                    >
-                      BRI
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-gray-400">
-                    Account:{" "}
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"} font-bold`}
-                    >
-                      629801065602534
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-gray-400">
-                    Name:{" "}
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"} font-bold uppercase`}
-                    >
-                      A.A Made Kusumawati
-                    </span>
-                  </div>
+                  {[
+                    { label: "Bank", val: "BRI" },
+                    { label: "Account", val: "629801065602534" },
+                    { label: "Name", val: "A.A Made Kusumawati" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-gray-400">
+                      {item.label}:{" "}
+                      <span className={`${darkMode ? "text-white" : "text-black"} font-bold`}>
+                        {item.val}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
-                  <p className="text-[11px] font-bold italic mb-3">
-                    Upload Receipt
-                  </p>
-                  <div
-                    className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer ${darkMode ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-gray-50 border-gray-200 hover:bg-gray-100"}`}
+                <div className="mt-4 pt-4 border-t border-dashed border-gray-200/20">
+                  <p className="text-[11px] font-bold italic mb-3">Upload Receipt</p>
+                  <label
+                    className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer block ${
+                      darkMode
+                        ? "bg-white/5 border-white/10 hover:bg-white/10"
+                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                    }`}
                   >
+                    <input type="file" className="hidden" />
                     <Plus size={20} className="mx-auto text-gray-400 mb-2" />
-                    <p className="text-[10px] font-bold text-gray-400">
-                      Tap to upload
-                    </p>
-                  </div>
+                    <p className="text-[10px] font-bold text-gray-400">Tap to upload</p>
+                  </label>
                 </div>
               </div>
               <button
-                className={`w-full py-4 font-bold rounded-2xl text-sm ${darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"}`}
+                className={`w-full py-4 font-bold rounded-2xl text-sm transition active:scale-[0.98] ${
+                  darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"
+                }`}
               >
                 Submit Booking
               </button>
@@ -543,33 +582,39 @@ export default function MemberPage() {
         </div>
 
         {/* Accordion 3: Booking History */}
-        <div
-          className={`border-b ${darkMode ? "border-white/5" : "border-gray-100"}`}
-        >
+        <div className={`border-b ${darkMode ? "border-white/5" : "border-gray-100"}`}>
           <button
             onClick={() => toggleAccordion("history")}
             className="w-full flex justify-between items-center py-6 group"
           >
             <span
-              className={`font-bold text-lg ${darkMode ? "group-hover:text-[#B6FF40]" : "group-hover:text-blue-600"} transition-colors uppercase`}
+              className={`font-bold text-lg ${
+                darkMode ? "group-hover:text-[#B6FF40]" : "group-hover:text-blue-600"
+              } transition-colors uppercase`}
             >
               Booking history
             </span>
             <ChevronDown
               size={20}
-              className={`text-gray-300 transition-transform ${activeAccordion === "history" ? "rotate-180" : ""}`}
+              className={`text-gray-300 transition-transform ${
+                activeAccordion === "history" ? "rotate-180" : ""
+              }`}
             />
           </button>
           {activeAccordion === "history" && (
-            <div className="pb-8 space-y-4 animate-in slide-in-from-top-2">
+            <div className="pb-8 space-y-4 animate-in slide-in-from-top-2 duration-300">
               {bookingHistory.map((item, i) => (
                 <div
                   key={i}
-                  className={`p-5 rounded-[30px] border flex flex-col md:flex-row justify-between gap-4 ${darkMode ? "bg-white/5 border-white/10" : "bg-[#F9F9F7] border-gray-100"}`}
+                  className={`p-5 rounded-[30px] border flex flex-col md:flex-row justify-between gap-4 ${
+                    darkMode ? "bg-white/5 border-white/10" : "bg-[#F9F9F7] border-gray-100"
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${darkMode ? "bg-white/10" : "bg-white"}`}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${
+                        darkMode ? "bg-white/10" : "bg-white"
+                      }`}
                     >
                       <History size={18} />
                     </div>
@@ -577,30 +622,22 @@ export default function MemberPage() {
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                         {item.id}
                       </p>
-                      <h4 className="font-black text-sm uppercase">
-                        {item.room}
-                      </h4>
+                      <h4 className="font-black text-sm uppercase">{item.room}</h4>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-6 text-[11px]">
                     <div>
-                      <p className="text-gray-400 font-bold uppercase mb-1">
-                        Date
-                      </p>
+                      <p className="text-gray-400 font-bold uppercase mb-1">Date</p>
                       <p className="font-black">{item.date}</p>
                     </div>
                     <div>
-                      <p className="text-gray-400 font-bold uppercase mb-1">
-                        Status
-                      </p>
+                      <p className="text-gray-400 font-bold uppercase mb-1">Status</p>
                       <span
-                        className={`flex items-center gap-1 font-black ${item.status === "Confirmed" ? "text-green-500" : "text-orange-500"}`}
+                        className={`flex items-center gap-1 font-black ${
+                          item.status === "Confirmed" ? "text-green-500" : "text-orange-500"
+                        }`}
                       >
-                        {item.status === "Confirmed" ? (
-                          <CheckCircle2 size={12} />
-                        ) : (
-                          <Clock size={12} />
-                        )}{" "}
+                        {item.status === "Confirmed" ? <CheckCircle2 size={12} /> : <Clock size={12} />}{" "}
                         {item.status}
                       </span>
                     </div>
@@ -614,47 +651,38 @@ export default function MemberPage() {
 
       {/* ================= FOOTER ================= */}
       <footer
-        className={`${darkMode ? "bg-[#121212] border-t border-white/5" : "bg-white border-t border-gray-100"} pt-16 pb-12`}
+        className={`${
+          darkMode ? "bg-[#121212] border-t border-white/5" : "bg-white border-t border-gray-100"
+        } pt-16 pb-12`}
       >
         <div
-          className={`w-full border-y mb-16 px-6 py-4 ${darkMode ? "border-white/5" : "border-gray-200"}`}
+          className={`w-full border-y mb-16 px-6 py-4 ${
+            darkMode ? "border-white/5" : "border-gray-200"
+          }`}
         >
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <div className="flex gap-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              <a href="#home" className="hover:text-[#B6FF40]">
-                Home
-              </a>
-              <a href="#features" className="hover:text-[#B6FF40]">
-                About
-              </a>
+              <a href="#home" className="hover:text-[#B6FF40]">Home</a>
+              <a href="#features" className="hover:text-[#B6FF40]">About</a>
             </div>
             <span
-              className={`italic font-black text-[14px] uppercase tracking-tighter ${darkMode ? "text-white" : "text-black"}`}
+              className={`italic font-black text-[14px] uppercase tracking-tighter ${
+                darkMode ? "text-white" : "text-black"
+              }`}
             >
               Kost Pak Yoyok
             </span>
             <div className="flex gap-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              <a href="#tour" className="hover:text-[#B6FF40]">
-                Visit
-              </a>
-              <a
-                href="#booking"
-                className={darkMode ? "text-[#B6FF40]" : "text-black"}
-              >
-                Booking
-              </a>
+              <a href="#tour" className="hover:text-[#B6FF40]">Visit</a>
+              <a href="#booking" className={darkMode ? "text-[#B6FF40]" : "text-black"}>Booking</a>
             </div>
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <p
-            className={`text-[13px] font-semibold opacity-70 ${darkMode ? "text-gray-400" : "text-black"}`}
-          >
+          <p className={`text-[13px] font-semibold opacity-70 ${darkMode ? "text-gray-400" : "text-black"}`}>
             Kemantren, Jabung, Malang Regency, East Java 65155.
           </p>
-          <p
-            className={`text-[18px] font-bold ${darkMode ? "text-[#B6FF40]" : "text-black"}`}
-          >
+          <p className={`text-[18px] font-bold ${darkMode ? "text-[#B6FF40]" : "text-black"}`}>
             +62 813-3121-7162
           </p>
         </div>
