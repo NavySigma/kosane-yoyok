@@ -13,13 +13,12 @@ class KamarSeeder extends Seeder
 
         for ($i = 1; $i <= 5; $i++) {
             $data[] = [
-                'nomor_kamar'     => "Kamar $i",
-                'harga_kamar_perbulan'     => 400000,
-                'kapasitas_kamar' => 3,
-                'status_kamar'    => 'tersedia',
-                'foto_kamar'      => null,
-                'created_at'      => now(),
-                'updated_at'      => now(),
+                'nomor_kamar' => "Kamar $i",
+                'harga_kamar_perbulan' => 400000,
+                'status_kamar' => 'tersedia',
+                'foto_kamar' => "../../../public/kamar1.jpeg",
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
         }
 

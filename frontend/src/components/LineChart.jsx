@@ -20,35 +20,29 @@ export default function LineChart() {
     MONTHS.map(month => ({ month, value: 0 }))
   );
 
-  useEffect(() => {
-    fetch("http://localhost:8000/api/dashboard")
-      .then(res => {
-        if (!res.ok) throw new Error("API error");
-        return res.json();
-      })
-      .then(res => {
-        const apiData = res.sewa_aktif || [];
+   useEffect(() => {
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const token = user?.token || "";
 
-        // Clone template
-        const baseData = MONTHS.map(month => ({
-          month,
-          value: 0
-        }));
-
-        // Timpa data dari API
-        apiData.forEach(item => {
-          const index = baseData.findIndex(
-            m => m.month === item.bulan
-          );
-          if (index !== -1) {
-            baseData[index].value = item.total;
-          }
-        });
-
-        setData(baseData);
-      })
-      .catch(err => console.error("LineChart error:", err));
-  }, []);
+  fetch("http://localhost:8000/api/dashboard", {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("API error");
+      return res.json();
+    })
+    .then(res => {
+      const formatted = res.sewa_aktif.map(item => ({
+        month: MONTHS[item.bulan - 1],
+        value: item.total
+      }));
+      setData(formatted);
+    })
+    .catch(err => console.error("LineChart error:", err));
+}, []);
 
   return (
     <div className="w-full overflow-x-auto scrollbar-hide">
