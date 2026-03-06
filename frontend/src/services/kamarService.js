@@ -8,20 +8,41 @@ const getToken = () => {
 
 const headers = () => ({
   "Content-Type": "application/json",
-  "Accept": "application/json",
-  "Authorization": `Bearer ${getToken()}`
+  Accept: "application/json",
+  Authorization: `Bearer ${getToken()}`
 });
 
-export const kamarService = {
-  async getAll() {
-    const res = await fetch(`${API}/kamar`, {
-      headers: headers(),
-    });
+export const getKamar = async () => {
+  const res = await fetch(`${API}/kamar`, {
+    headers: headers()
+  });
 
-    if (!res.ok) {
-      throw await res.json();
-    }
+  if (!res.ok) throw await res.json();
 
-    return res.json();
-  }
+  const data = await res.json();
+  return data.data;
+};
+
+export const tambahKamar = async (payload) => {
+  const res = await fetch(`${API}/kamar`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) throw await res.json();
+
+  return await res.json();
+};
+
+export const updateKamar = async (id, payload) => {
+  const res = await fetch(`${API}/kamar/${id}`, {
+    method: "PUT",
+    headers: headers(),
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) throw await res.json();
+
+  return await res.json();
 };
