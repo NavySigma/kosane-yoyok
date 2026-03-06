@@ -63,7 +63,7 @@ export default function Login() {
       setSuccess("Login berhasil!");
       localStorage.setItem("isLogin", "true");
       localStorage.setItem("user", JSON.stringify(data.data));
-      setTimeout(() => navigate("/"), 1200);
+      setTimeout(() => navigate("/member"), 1200);
     } catch (err) {
       setError("Server error, silakan coba lagi nanti.");
     }
