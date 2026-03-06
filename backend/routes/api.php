@@ -5,10 +5,18 @@ use App\Http\Controllers\Admin\KamarController;
 use App\Http\Controllers\Admin\PenyewaController;
 use App\Http\Controllers\Admin\RiwayatController;
 
+use App\Http\Controllers\Member\DashboardController;
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/survei', [DashboardController::class, 'survei']);
+
+
+    
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/dashboard', [BerandaController::class, 'index']);
@@ -25,3 +33,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/riwayat', [RiwayatController::class, 'index']);
 });
+

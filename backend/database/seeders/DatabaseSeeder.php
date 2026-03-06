@@ -20,10 +20,17 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         Profile::create([
+            [
             'nama_profile' => 'admin',
             'password_profile' => Hash::make('123'),
             'level_profile' => 'admin',
-        ]);
+            ],
+            [
+                'nama_profile' => 'user',
+                'password_profile' => Hash::make('123'),
+                'level_profile' => 'user',
+            ]
+            ]);
 
         $this->call([
         FasilitasSeeder::class,
