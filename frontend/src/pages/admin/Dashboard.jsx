@@ -1,43 +1,9 @@
-import { useEffect, useState } from "react";
 import StatCard from "../../components/StatCard";
 import LineChart from "../../components/LineChart";
+import useDashboard from "../../hooks/admin/useDashboard";
 
 export default function Dashboard() {
-  const [dashboard, setDashboard] = useState({
-    pemasukan: 0,
-    pengeluaran: 0,
-    kamar_tersedia: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    const user = userStr ? JSON.parse(userStr) : null;
-    const token = user?.token || "";
-
-    fetch("http://localhost:8000/api/dashboard", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("API error");
-        return res.json();
-      })
-      .then(res => {
-        setDashboard({
-          pemasukan: res.pemasukan ?? 0,
-          pengeluaran: res.pengeluaran ?? 0,
-          kamar_tersedia: res.kamar_tersedia ?? 0,
-        });
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Dashboard API error:", err);
-        setLoading(false);
-      });
-  }, []);
+  const { dashboard, loading } = useDashboard();
 
   return (
     <div className="p-6 pt-20">
@@ -49,6 +15,7 @@ export default function Dashboard() {
             Tahun Ini
           </span>
         </div>
+
         <LineChart />
       </div>
 
@@ -59,17 +26,19 @@ export default function Dashboard() {
           value={
             loading
               ? "Loading..."
-              : `Rp ${Number(dashboard.pemasukan || 0).toLocaleString("id-ID")}`
+              : `Rp ${Number(dashboard.pemasukan).toLocaleString("id-ID")}`
           }
         />
+
         <StatCard
           title="Pengeluaran Bulan Ini"
           value={
             loading
               ? "Loading..."
-              : `Rp ${Number(dashboard.pengeluaran || 0).toLocaleString("id-ID")}`
+              : `Rp ${Number(dashboard.pengeluaran).toLocaleString("id-ID")}`
           }
         />
+
         <StatCard
           title="Kamar Tersedia"
           value={loading ? "Loading..." : dashboard.kamar_tersedia}

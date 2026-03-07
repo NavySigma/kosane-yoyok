@@ -8,7 +8,6 @@ import Member from "./pages/user/Member"; // Halaman utama member setelah login
 
 /* ================= ADMIN ================= */
 import AdminLogin from "./pages/admin/Login";
-import AdminRegister from "./pages/admin/Register";
 import Dashboard from "./pages/admin/Dashboard";
 import Keuangan from "./pages/admin/Keuangan";
 import Riwayat from "./pages/admin/Riwayat";
@@ -51,7 +50,6 @@ export default function App() {
 
         {/* ================= ADMIN (PUBLIC AUTH) ================= */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/register" element={<AdminRegister />} />
 
         {/* ================= ADMIN (PROTECTED DASHBOARD) ================= */}
         <Route
