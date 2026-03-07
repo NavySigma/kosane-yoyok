@@ -10,6 +10,7 @@ class Survei extends Model
         'id_profile_survei',
         'nama_pesurvei',
         'status_survei',
+        'tgl_survei',
         'catatan'
     ];
 }

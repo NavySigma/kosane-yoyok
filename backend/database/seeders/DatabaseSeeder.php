@@ -17,20 +17,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
 
-        Profile::create([
-            [
+    Profile::insert([
+        [
             'nama_profile' => 'admin',
             'password_profile' => Hash::make('123'),
             'level_profile' => 'admin',
-            ],
-            [
-                'nama_profile' => 'user',
-                'password_profile' => Hash::make('123'),
-                'level_profile' => 'user',
-            ]
-            ]);
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'nama_profile' => 'user',
+            'password_profile' => Hash::make('123'),
+            'level_profile' => 'user',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]
+    ]);
 
         $this->call([
         FasilitasSeeder::class,
