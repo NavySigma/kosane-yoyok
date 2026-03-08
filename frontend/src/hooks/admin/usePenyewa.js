@@ -11,6 +11,7 @@ export default function usePenyewa() {
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
   const [endingLoading, setEndingLoading] = useState(false);
   const [showEndSuccess, setShowEndSuccess] = useState(false);
+  const [tglMulai, setTglMulai] = useState(null);
 
   const defaultAddForm = {
     nama_penyewa: "",
@@ -27,6 +28,7 @@ export default function usePenyewa() {
     noKamar: "",
     jumlahPenyewa: 1,
     metodeBayar: "",
+    totalCicilan: 0,
     totalBayar: "",
     cicilan: 0,
     catatan: "",
@@ -70,6 +72,7 @@ export default function usePenyewa() {
           noTelp: "",
           jumlahPenyewa: "",
           metodeBayar: "",
+          totalCicilan: 0,
           cicilan: 0,
           catatan: "",
         });
@@ -81,9 +84,11 @@ export default function usePenyewa() {
         noTelp: data.no_telp_profile,
         jumlahPenyewa: data.sewa_berapa_bulan || 1,
         metodeBayar: data.metode_pembayaran,
-        cicilan: data.cicilan || 0,
+        totalCicilan: data.total_cicilan || 0,
+        cicilan: "",
         catatan: data.catatan,
       });
+      setTglMulai(data.tgl_mulai);
     } catch (err) {
       console.error(err);
     } finally {
@@ -173,7 +178,23 @@ export default function usePenyewa() {
     (Number(form.jumlahPenyewa) || 1) *
     (Number(selectedKamar?.harga) || 0);
 
-  const sisaBayar = (totalBayar || 0) - (form.cicilan || 0);
+  const totalCicilan = form.totalCicilan;
+
+  const sisaBayar = (totalBayar || 0) - (form.totalCicilan || 0);
+
+
+      const sudahLewatSewa = (() => {
+      if (!tglMulai) return false;
+
+      const mulai = new Date(tglMulai);
+      const selesai = new Date(mulai);
+
+      selesai.setMonth(mulai.getMonth() + Number(form.jumlahPenyewa));
+
+      const hariIni = new Date();
+
+      return hariIni > selesai;
+      })();
 
   return {
     // state
@@ -190,7 +211,9 @@ export default function usePenyewa() {
     form, setForm,
     addForm,
     totalBayar,
+    totalCicilan,
     sisaBayar,
+    sudahLewatSewa,
 
     // handler
     handleTambah,

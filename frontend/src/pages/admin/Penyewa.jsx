@@ -23,7 +23,9 @@ export default function Penyewa() {
     form, setForm,
     addForm,
     totalBayar,
+    totalCicilan,
     sisaBayar,
+    sudahLewatSewa,
 
     handleTambah,
     handleInformasi,
@@ -80,7 +82,7 @@ export default function Penyewa() {
         {(kamar.status === "Disewa" || kamar.status === "disewa") ? (
         <button
             onClick={() => handleInformasi(kamar)}
-            className="px-5 py-1.5 rounded-full text-xs text-white bg-[#1E1B6D]"
+            className="px-4 py-1.5 rounded-full text-xs text-white bg-[#1E1B6D]"
         >
             Informasi
         </button>
@@ -108,7 +110,12 @@ export default function Penyewa() {
       <>
     {/* HEADER */}
     <h2 className="text-lg font-bold mb-4 border-b pb-3">
-      Informasi Data {selectedKamar?.nama}
+      Informasi Data {selectedKamar?.nama} &nbsp;
+      {sudahLewatSewa && (
+    <span className="text-sm bg-red-100 text-red-600 px-3 py-1 rounded-full">
+      Sudah melebihi batas sewa, harap tambah bulan sewa
+    </span>
+  )}
     </h2>
 
     <form className="grid md:grid-cols-2 gap-6">
@@ -194,13 +201,14 @@ export default function Penyewa() {
 
   {/* TOTAL CICILAN */}
   <div>
-  <label className="font-semibold text-xs">Total Cicilan Saat Ini</label>
+  <label className="font-semibold text-xs">Tambah Cicilan</label>
 
     <div className="relative">
         <span className="absolute left-4 top-2.5 text-sm text-gray-500">Rp</span>
         <input
         name="cicilan"
-        value={form.cicilan || ""}
+        value={form.cicilan ? form.cicilan.toLocaleString("id-ID") : ""}
+        placeholder="Masukkan Nominal Cicilan"
         onChange={(e) => {
             const value = e.target.value.replace(/[^0-9]/g, "");
             setForm((prev) => ({
@@ -211,6 +219,10 @@ export default function Penyewa() {
         className="w-full mt-1 rounded-full border border-[#5E5BA6] pl-10 pr-4 py-1.5 text-sm outline-none"
         />
     </div>
+
+    <p className="text-sm mt-1">
+      Total Cicilan : Rp {Number(form.totalCicilan || 0).toLocaleString("id-ID")}
+    </p>
 
     {/* SISA */}
     <p className="text-xs mt-1">

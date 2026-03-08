@@ -15,7 +15,6 @@ class SewaDetail extends Model
         'status_pembayaran',
         'metode_pembayaran',
         'sewa_berapa_bulan',
-        'cicilan',
         'catatan'
     ];
 
@@ -27,6 +26,11 @@ class SewaDetail extends Model
     public function kamar()
     {
         return $this->belongsTo(Kamar::class, 'id_kamar_sewadetail');
+    }
+
+    public function cicilan()
+    {
+        return $this->hasMany(Cicilan::class, 'sewadetail_id');
     }
 }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cicilan;
 use App\Models\Profile;
 use App\Models\Sewa;
 use App\Models\SewaDetail;
@@ -143,62 +144,78 @@ class PenyewaController extends Controller
             return response()->json([]);
         }
 
+        $totalCicilan = Cicilan::where('sewadetail_id',$sewaDetail->id_sewadetail)
+        ->sum('nominal_cicilan');
+
         return response()->json([
             'nama_profile' => $sewaDetail->sewa->profile->nama_profile ?? '',
             'no_telp_profile' => $sewaDetail->sewa->profile->no_telp_profile ?? '',
             'sewa_berapa_bulan' => $sewaDetail->sewa_berapa_bulan ?? '',
             'metode_pembayaran' => $sewaDetail->metode_pembayaran ?? '',
             'catatan' => $sewaDetail->catatan ?? '',
-            'cicilan' => $sewaDetail->cicilan ?? 0,
+            'total_cicilan' => $totalCicilan,
+            'tgl_mulai' => $sewaDetail->sewa->tglsewa_sewa
         ]);
     }
 
     public function update(Request $request, $id)
-{
-    DB::beginTransaction();
+    {
+        DB::beginTransaction();
 
-    try {
-        // ambil sewa detail berdasarkan kamar
-        $sewaDetail = SewaDetail::where('id_kamar_sewadetail', $id)
-        ->whereHas('sewa', function($q){
-            $q->where('is_active', 1);
-        })
-        ->firstOrFail();
+        try {
 
-        // ambil sewa
-        $sewa = Sewa::where('id_sewa', $sewaDetail->id_sewa_sewadetail)->firstOrFail();
+            $sewaDetail = SewaDetail::where('id_kamar_sewadetail', $id)
+            ->whereHas('sewa', function($q){
+                $q->where('is_active', 1);
+            })
+            ->firstOrFail();
 
-        // ambil profile
-        $profile = Profile::where('id_profile', $sewa->id_profile_sewa)->firstOrFail();
+            $sewa = Sewa::where('id_sewa', $sewaDetail->id_sewa_sewadetail)->firstOrFail();
 
-        // ================= UPDATE PROFILE =================
-        $profile->update([
-            'nama_profile' => $request->nama_profile,
-            'no_telp_profile' => $request->no_telp_profile,
-        ]);
+            $profile = Profile::where('id_profile', $sewa->id_profile_sewa)->firstOrFail();
 
-        // ================= UPDATE SEWA DETAIL =================
-        $sewaDetail->update([
-            'sewa_berapa_bulan' => $request->sewa_berapa_bulan,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'cicilan' => $request->cicilan ?? 0,
-            'catatan' => $request->catatan,
-        ]);
+            // ================= UPDATE PROFILE =================
+            $profile->update([
+                'nama_profile' => $request->nama_profile,
+                'no_telp_profile' => $request->no_telp_profile,
+            ]);
 
-        DB::commit();
+            // ================= UPDATE SEWA DETAIL =================
+            $sewaDetail->update([
+                'sewa_berapa_bulan' => $request->sewa_berapa_bulan,
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'catatan' => $request->catatan,
+            ]);
 
-        return response()->json([
-            'message' => 'Data berhasil diupdate'
-        ]);
+            // ================= TAMBAH CICILAN =================
+            if($request->cicilan > 0){
 
-    } catch (\Exception $e) {
-        DB::rollBack();
+                $cicilanKe = Cicilan::where('sewadetail_id',$sewaDetail->id_sewadetail)->count() + 1;
 
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
+                Cicilan::create([
+                    'sewadetail_id' => $sewaDetail->id_sewadetail,
+                    'cicilan_ke' => $cicilanKe,
+                    'nominal_cicilan' => $request->cicilan,
+                    'tgl_cicilan' => now()
+                ]);
+
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data berhasil diupdate'
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ],500);
+        }
     }
-}
 
 
     public function akhiriSewa($kamar_id)

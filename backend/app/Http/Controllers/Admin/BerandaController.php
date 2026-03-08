@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cicilan;
 use App\Models\Kamar;
 use App\Models\Keuangan;
 use App\Models\SewaDetail;
@@ -47,11 +48,9 @@ class BerandaController extends Controller
 
     $now = Carbon::now();
 
-    $pemasukan = SewaDetail::join('sewa', 'sewa_detail.id_sewa_sewadetail', '=', 'sewa.id_sewa')
-        ->join('kamar', 'sewa_detail.id_kamar_sewadetail', '=', 'kamar.id_kamar')
-        ->whereMonth('sewa.tglsewa_sewa', $now->month)
-        ->whereYear('sewa.tglsewa_sewa', $now->year)
-        ->sum('sewa_detail.cicilan');
+    $pemasukan = Cicilan::whereMonth('tgl_cicilan', $now->month)
+    ->whereYear('tgl_cicilan', $now->year)
+    ->sum('nominal_cicilan');
 
     $pengeluaran = Keuangan::whereMonth('created_at', $now->month)
     ->whereYear('created_at', $now->year)

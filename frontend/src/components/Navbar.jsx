@@ -87,7 +87,7 @@ export default function Navbar() {
             <img src="/kamaricon.png" className="w-5 h-5" /> Kamar
           </NavLink>
           <NavLink to="/admin/penyewa" className={navClass}>
-            <img src="/user.png" className="w-5 h-5" /> Penyewa
+            <img src="/user.png" className="w-5 h-5" /> Sewa
           </NavLink>
           <NavLink to="/admin/keuangan" className={navClass}>
             <img src="/pemasukan.png" className="w-5 h-5" /> Keuangan
