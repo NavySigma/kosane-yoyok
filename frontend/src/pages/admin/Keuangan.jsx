@@ -1,82 +1,129 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { keuanganService } from "../../services/keuanganService";
 
 export default function Pemasukan() {
+
+  const [transaksi, setTransaksi] = useState([]);
+  const [dashboard, setDashboard] = useState({});
   const [selectedId, setSelectedId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
 
   const [form, setForm] = useState({
-    nama: "",
-    kamar: "",
-    total: "",
+    keterangan: "",
+    nominal: "",
   });
 
-  const [transaksi, setTransaksi] = useState([
-    { id: 1, nama: "Budi Santoso", kamar: "Kamar 1", total: 1000000 },
-    { id: 2, nama: "Siti Aminah", kamar: "Kamar 2", total: 1000000 },
-  ]);
+  // ================= FETCH KEUANGAN =================
+  const fetchData = async () => {
+    try {
+      const res = await keuanganService.getAll();
 
-  const totalPemasukan = transaksi.reduce(
-    (a, b) => a + Number(b.total),
+      // kalau API return {data:[]}
+      setTransaksi(res.data || res);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ================= FETCH DASHBOARD =================
+  const fetchDashboard = async () => {
+  try {
+
+    const res = await keuanganService.getDashboard();
+    setDashboard(res.data || res);
+
+  } catch (err) {
+    console.error(err);
+  }
+  };
+
+  useEffect(() => {
+    fetchData();
+    fetchDashboard();
+  }, []);
+
+  // ================= TOTAL =================
+  const totalPengeluaran = transaksi.reduce(
+    (a, b) => a + Number(b.nominal),
     0
   );
 
-  const totalPengeluaran = 500000;
-
   // ================= SIMPAN =================
-  const handleSimpan = () => {
-    if (!form.nama || !form.total)
+  const handleSimpan = async () => {
+
+    if (!form.keterangan || !form.nominal)
       return alert("Form belum lengkap");
 
-    setTransaksi([
-      ...transaksi,
-      { id: Date.now(), ...form, total: Number(form.total) },
-    ]);
+    try {
 
-    resetForm();
+      await keuanganService.store({
+        keterangan: form.keterangan,
+        nominal: Number(form.nominal),
+      });
+
+      await fetchData();
+      await fetchDashboard();
+      resetForm();
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ================= EDIT =================
   const handleEdit = () => {
-    if (!selectedId) return alert("Pilih data dulu");
+
+    if (!selectedId)
+      return alert("Pilih data dulu");
 
     const data = transaksi.find((t) => t.id === selectedId);
 
+    if (!data) return;
+
     setForm({
-      nama: data.nama,
-      kamar: data.kamar,
-      total: data.total,
+      keterangan: data.keterangan,
+      nominal: data.nominal,
     });
 
     setIsEdit(true);
   };
 
   // ================= UPDATE =================
-  const handleUpdate = () => {
-    setTransaksi(
-      transaksi.map((t) =>
-        t.id === selectedId
-          ? { ...t, ...form, total: Number(form.total) }
-          : t
-      )
-    );
+  const handleUpdate = async () => {
 
-    resetForm();
-  };
+    try {
 
-  // ================= HAPUS =================
-  const handleHapus = () => {
-    if (!selectedId) return alert("Pilih data dulu");
+      await keuanganService.update(selectedId, {
+        keterangan: form.keterangan,
+        nominal: Number(form.nominal),
+      });
 
-    setTransaksi(transaksi.filter((t) => t.id !== selectedId));
-    resetForm();
+      await fetchData();
+      await fetchDashboard();
+      resetForm();
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ================= RESET =================
   const resetForm = () => {
-    setForm({ nama: "", kamar: "", total: "" });
+
+    setForm({
+      keterangan: "",
+      nominal: "",
+    });
+
     setSelectedId(null);
     setIsEdit(false);
   };
+
+  const nominal = totalPengeluaran.toLocaleString("id-ID");
+
+  const total =
+  Number(dashboard.pemasukan || 0) - Number(totalPengeluaran || 0);
 
   return (
     <div className="min-h-screen bg-[#f1f1f1] p-35 pt-20">
@@ -87,87 +134,80 @@ export default function Pemasukan() {
 
           {/* SUMMARY */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-            <div className="flex items-center justify-between">
 
-              <div className="flex-1 text-center">
-                <p className="text-sm text-gray-500">
-                  Total Pemasukan
-                </p>
-                <h2 className="text-2xl font-bold text-green-600 mt-1">
-                  Rp {totalPemasukan.toLocaleString("id-ID")}
-                </h2>
-              </div>
+          <div className="flex items-center justify-between">
 
-              <div className="w-px h-16 bg-gray-300 mx-6"></div>
-
-              <div className="flex-1 text-center">
-                <p className="text-sm text-gray-500">
-                  Pengeluaran
-                </p>
-                <h2 className="text-2xl font-bold text-red-600 mt-1">
-                  - Rp {totalPengeluaran.toLocaleString("id-ID")}
-                </h2>
-              </div>
-
+            <div className="flex-1 text-center">
+              <p className="text-sm text-gray-500">
+                Total Pemasukan
+              </p>
+              <h2 className="text-2xl font-bold text-green-600 mt-1 whitespace-nowrap">
+                Rp {Number(dashboard.pemasukan || 0).toLocaleString("id-ID")}
+              </h2>
             </div>
+
+            <div className="flex flex-col items-center mx-6">
+              <div className="w-px h-6 bg-gray-400"></div>
+              <span className="text-xs text-gray-500 py-1">
+                Bulan Ini
+              </span>
+              <div className="w-px h-6 bg-gray-400"></div>
+            </div>
+
+            <div className="flex-1 text-center">
+              <p className="text-sm text-gray-500">
+                Pengeluaran
+              </p>
+              <h2 className="text-2xl font-bold text-red-600 mt-1 whitespace-nowrap">
+                - Rp {nominal}
+              </h2>
+            </div>
+
           </div>
+
+          {/* divider */}
+          <div className="border-t border-gray-500 my-4"></div>
+
+          {/* total */}
+          <div className="text-center">
+            <p className="text-sm font-bold text-gray-500">
+              Total
+            </p>
+
+            <h2 className={`text-2xl font-bold mt-1 ${
+              total >= 0 ? "text-green-600" : "text-red-600"
+            }`}>
+              Rp {total.toLocaleString("id-ID")}
+            </h2>
+          </div>
+        </div>
 
           {/* FORM */}
           <div className="bg-white rounded-2xl p-6 shadow space-y-5">
             <h3 className="font-bold text-[#1E1B6D] text-lg">
-              Form Pemasukan
+              Form Pengeluaran
             </h3>
-
-            {/* PILIH PENYEWA */}
-<div className="relative w-full">
-  <select
-    className="w-full appearance-none rounded-full px-5 py-3 border border-[#1E1B6D] focus:outline-none focus:ring-2 focus:ring-[#1E1B6D] bg-white pr-12"
-    value={form.nama}
-    onChange={(e) => {
-      const selectedNama = e.target.value;
-      const dataPenyewa = transaksi.find((t) => t.nama === selectedNama);
-      setForm({
-        ...form,
-        nama: selectedNama,
-        kamar: dataPenyewa ? dataPenyewa.kamar : "",
-      });
-    }}
-  >
-    <option value="">Pilih Penyewa</option>
-    {[...new Set(transaksi.map((t) => t.nama))].map((nama) => (
-      <option key={nama} value={nama}>
-        {nama}
-      </option>
-    ))}
-  </select>
-  
-  {/* Icon Panah Custom agar bisa digeser ke kiri */}
-  <div className="pointer-events-none absolute inset-y-0 right-5 flex items-center text-[#1E1B6D]">
-    <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-    </svg>
-  </div>
-</div>
 
             {/* KAMAR OTOMATIS (READONLY) */}
             <input
-              type="text"
-              value={form.kamar}
-              readOnly
-              placeholder="Kamar otomatis"
-              className="w-full rounded-full px-5 py-3 border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed"
-            />
+            type="text"
+            placeholder="Keterangan"
+            value={form.keterangan}
+            onChange={(e) =>
+              setForm({ ...form, keterangan: e.target.value })
+            }
+            className="w-full rounded-full px-5 py-3 border border-[#1E1B6D]"
+          />
 
-            {/* TOTAL */}
-            <input
-              type="number"
-              className="w-full rounded-full px-5 py-3 border border-[#1E1B6D] focus:outline-none focus:ring-2 focus:ring-[#1E1B6D]"
-              placeholder="Total"
-              value={form.total}
-              onChange={(e) =>
-                setForm({ ...form, total: e.target.value })
-              }
-            />
+          <input
+            type="number"
+            placeholder="Nominal"
+            value={form.nominal}
+            onChange={(e) =>
+              setForm({ ...form, nominal: e.target.value })
+            }
+            className="w-full rounded-full px-5 py-3 border border-[#1E1B6D]"
+          />
 
             <button
               onClick={isEdit ? handleUpdate : handleSimpan}
@@ -179,39 +219,64 @@ export default function Pemasukan() {
         </div>
 
         {/* ================= RIGHT ================= */}
-        <div className="lg:col-span-3 bg-white rounded-2xl p-8 shadow">
+        <div className="lg:col-span-3 bg-white rounded-2xl p-8 shadow flex flex-col">
           <h3 className="font-bold text-[#1E1B6D] text-lg mb-6">
-            Riwayat Transaksi
+            Riwayat Pengeluaran
           </h3>
 
-          <div className="space-y-3">
-            {transaksi.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedId(item.id)}
-                className={`flex justify-between items-center px-5 py-4 rounded-xl cursor-pointer transition border ${
-                  selectedId === item.id
-                    ? "bg-[#E6E8FF] border-[#1E1B6D]"
-                    : "bg-white border-[#D1D5DB] hover:border-[#1E1B6D]"
-                }`}
-              >
-                <div>
+          {transaksi.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            
+            <img
+              src="../../../public/vite.svg"
+              alt="empty"
+              className="w-36 mb-4 opacity-80"
+            />
+
+            <p className="text-gray-500 text-lg ">
+              Belum ada data pengeluaran
+            </p>
+
+            <p className="text-gray-400 text-sm mt-1">
+              Silakan tambahkan pengeluaran baru
+            </p>
+
+          </div>
+          ) : (
+            <div className="space-y-3">
+              {transaksi.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => setSelectedId(item.id)}
+                  className={`flex justify-between items-center px-5 py-4 rounded-xl cursor-pointer transition border ${
+                    selectedId === item.id
+                      ? "bg-[#E6E8FF] border-[#1E1B6D]"
+                      : "bg-white border-[#D1D5DB] hover:border-[#1E1B6D]"
+                  }`}
+                >
+                  <div>
                   <p className="font-semibold text-[#1E1B6D]">
-                    {item.nama}
+                    {item.keterangan}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {item.kamar}
+
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(item.created_at).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </p>
                 </div>
 
-                <p className="font-bold text-sm text-[#1E1B6D]">
-                  Rp {item.total.toLocaleString("id-ID")}
-                </p>
-              </div>
-            ))}
-          </div>
+                  <p className="font-bold text-sm text-[#1E1B6D]">
+                    Rp {item.nominal.toLocaleString("id-ID")}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div className="flex justify-end gap-3 mt-8">
+          <div className="flex justify-end gap-3 mt-auto pt-8">
             <button
               onClick={resetForm}
               className="px-6 py-2 rounded-full border border-[#1E1B6D] text-[#1E1B6D] hover:bg-[#E6E8FF] transition"
@@ -221,16 +286,9 @@ export default function Pemasukan() {
 
             <button
               onClick={handleEdit}
-              className="px-6 py-2 rounded-full bg-[#1E1B6D] text-white hover:opacity-90 transition"
+              className="px-10 py-2 rounded-full bg-[#1E1B6D] text-white hover:opacity-90 transition"
             >
               Edit
-            </button>
-
-            <button
-              onClick={handleHapus}
-              className="px-6 py-2 rounded-full bg-red-600 text-white hover:opacity-90 transition"
-            >
-              Hapus
             </button>
           </div>
         </div>

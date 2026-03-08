@@ -2,6 +2,7 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BerandaController;
 use App\Http\Controllers\Admin\KamarController;
+use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\PenyewaController;
 use App\Http\Controllers\Admin\RiwayatController;
 
@@ -30,6 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/penyewa', [PenyewaController::class, 'store']);
     Route::get('/penyewa/kamar/{kamar_id}', [PenyewaController::class, 'byKamar']);
     Route::put('/penyewa/akhiri/{id}', [PenyewaController::class, 'akhiriSewa']);
+
+    Route::get('/keuangan', [KeuanganController::class, 'index']);
+    Route::post('/keuangan', [KeuanganController::class, 'store']);
+    Route::put('/keuangan/{id}', [KeuanganController::class, 'update']);
 
     Route::get('/riwayat', [RiwayatController::class, 'index']);
 });
