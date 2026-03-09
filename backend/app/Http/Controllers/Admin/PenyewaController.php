@@ -185,6 +185,7 @@ class PenyewaController extends Controller
                 'sewa_berapa_bulan' => $request->sewa_berapa_bulan,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'catatan' => $request->catatan,
+                'status_pembayaran' => $request->status_pembayaran,
             ]);
 
             // ================= TAMBAH CICILAN =================

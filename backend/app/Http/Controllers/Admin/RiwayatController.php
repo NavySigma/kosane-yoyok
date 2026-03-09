@@ -25,7 +25,7 @@ class RiwayatController extends Controller
                     : '-';
 
                 // Logika: Penghuni Lama (Berdasarkan status_pembayaran 'selesai')
-                if ($item->status_pembayaran === 'selesai') {
+                if ($item->status_pembayaran === 'lunas') {
                     return [
                         'id' => 'OLD-' . $item->id_sewadetail,
                         'tanggal' => $item->updated_at->toDateString(),
@@ -72,11 +72,10 @@ class RiwayatController extends Controller
             return [
                 'id' => 'SRV-' . $item->id_survei,
                 'tanggal' => $item->tgl_survei,
-                'kamar' => 'Survey', // Kategori survei tidak terpaku pada satu nomor kamar
                 'penyewa' => $item->nama_pesurvei ?? '-',
                 'status' => ucfirst($item->status_survei ?? 'Pending'),
                 'kategori' => 'survei',
-                'keterangan' => $item->catatan ?? 'Rencana kunjungan lokasi'
+                'keterangan' => $item->catatan
             ];
         });
 

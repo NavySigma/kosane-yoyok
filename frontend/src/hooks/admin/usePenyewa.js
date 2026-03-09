@@ -105,6 +105,15 @@ export default function usePenyewa() {
     if (!selectedKamar) return;
 
     try {
+
+      const cicilanBaru = Number(form.cicilan) || 0;
+
+      const totalCicilanBaru =
+        Number(form.totalCicilan || 0) + cicilanBaru;
+
+      const statusPembayaran =
+        totalCicilanBaru >= totalBayar ? "lunas" : "pending";
+
       await penyewaService.update(selectedKamar.id, {
         nama_profile: form.namaPenyewa,
         no_telp_profile: form.noTelp,
@@ -112,6 +121,8 @@ export default function usePenyewa() {
         metode_pembayaran: form.metodeBayar,
         total_bayar: totalBayar,
         cicilan: Number(form.cicilan),
+        total_cicilan: totalCicilanBaru,
+        status_pembayaran: statusPembayaran,
         catatan: form.catatan,
       });
 
