@@ -76,9 +76,7 @@ class KamarController extends Controller
 
         $fasilitasIds = [];
 
-        // =========================
         // FASILITAS KAMAR
-        // =========================
         if ($request->fasilitas_kamar) {
             foreach ($request->fasilitas_kamar as $nama) {
                 $fasilitas = Fasilitas::firstOrCreate([
@@ -90,9 +88,7 @@ class KamarController extends Controller
             }
         }
 
-        // =========================
         // FASILITAS BERSAMA
-        // =========================
         if ($request->fasilitas_bersama) {
             foreach ($request->fasilitas_bersama as $nama) {
                 $fasilitas = Fasilitas::firstOrCreate([

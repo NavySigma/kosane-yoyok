@@ -7,6 +7,10 @@ export default function Pemasukan() {
   const [dashboard, setDashboard] = useState({});
   const [selectedId, setSelectedId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const dataPerPage = 3;
 
   const [form, setForm] = useState({
     keterangan: "",
@@ -16,6 +20,7 @@ export default function Pemasukan() {
   // ================= FETCH KEUANGAN =================
   const fetchData = async () => {
     try {
+      setLoadingData(true);
       const res = await keuanganService.getAll();
 
       // kalau API return {data:[]}
@@ -29,6 +34,7 @@ export default function Pemasukan() {
   // ================= FETCH DASHBOARD =================
   const fetchDashboard = async () => {
   try {
+    setLoadingDashboard(true);
 
     const res = await keuanganService.getDashboard();
     setDashboard(res.data || res);
@@ -49,6 +55,13 @@ export default function Pemasukan() {
     0
   );
 
+  // ============= PAGINATION =================
+  const indexLast = currentPage * dataPerPage;
+  const indexFirst = indexLast - dataPerPage;
+  const currentData = transaksi.slice(indexFirst, indexLast);
+
+  const totalPages = Math.ceil(transaksi.length / dataPerPage);
+
   // ================= SIMPAN =================
   const handleSimpan = async () => {
 
@@ -59,7 +72,7 @@ export default function Pemasukan() {
 
       await keuanganService.store({
         keterangan: form.keterangan,
-        nominal: Number(form.nominal),
+        nominal: Number(form.nominal.replace(/\./g, "")),
       });
 
       await fetchData();
@@ -74,20 +87,22 @@ export default function Pemasukan() {
   // ================= EDIT =================
   const handleEdit = () => {
 
-    if (!selectedId)
-      return alert("Pilih data dulu");
+  if (selectedId === null) {
+    alert("Pilih data dulu");
+    return;
+  }
 
-    const data = transaksi.find((t) => t.id === selectedId);
+  const data = transaksi.find((t) => t.id_keuangan === selectedId);
 
-    if (!data) return;
+  if (!data) return;
 
-    setForm({
-      keterangan: data.keterangan,
-      nominal: data.nominal,
-    });
+  setForm({
+    keterangan: data.keterangan,
+    nominal: new Intl.NumberFormat("id-ID").format(data.nominal),
+  });
 
-    setIsEdit(true);
-  };
+  setIsEdit(true);
+};
 
   // ================= UPDATE =================
   const handleUpdate = async () => {
@@ -96,7 +111,7 @@ export default function Pemasukan() {
 
       await keuanganService.update(selectedId, {
         keterangan: form.keterangan,
-        nominal: Number(form.nominal),
+        nominal: Number(form.nominal.replace(/\./g, "")),
       });
 
       await fetchData();
@@ -120,10 +135,19 @@ export default function Pemasukan() {
     setIsEdit(false);
   };
 
+  const selectTransaksi = (item) => {
+    setSelectedId(item.id_keuangan);
+  };
+
   const nominal = totalPengeluaran.toLocaleString("id-ID");
 
   const total =
   Number(dashboard.pemasukan || 0) - Number(totalPengeluaran || 0);
+
+  const formatRupiah = (value) => {
+  const number = value.replace(/\D/g, "");
+  return new Intl.NumberFormat("id-ID").format(number);
+  };
 
   return (
     <div className="min-h-screen bg-[#f1f1f1] p-35 pt-20">
@@ -199,21 +223,30 @@ export default function Pemasukan() {
             className="w-full rounded-full px-5 py-3 border border-[#1E1B6D]"
           />
 
-          <input
-            type="number"
-            placeholder="Nominal"
-            value={form.nominal}
-            onChange={(e) =>
-              setForm({ ...form, nominal: e.target.value })
-            }
-            className="w-full rounded-full px-5 py-3 border border-[#1E1B6D]"
-          />
+          <div className="flex items-center border border-[#1E1B6D] rounded-full px-5 py-3">
+            <span className="text-gray-500 mr-2">Rp</span>
+
+            <input
+              type="text"
+              placeholder="Nominal"
+              value={form.nominal}
+              onChange={(e) => {
+                const number = e.target.value.replace(/\D/g, "");
+
+                setForm({
+                  ...form,
+                  nominal: new Intl.NumberFormat("id-ID").format(number),
+                });
+              }}
+              className="w-full outline-none bg-transparent"
+            />
+          </div>
 
             <button
               onClick={isEdit ? handleUpdate : handleSimpan}
               className="w-full py-3 rounded-full bg-[#109010] text-white font-bold text-lg hover:opacity-90 transition"
             >
-              {isEdit ? "Update Data" : "Simpan Data"}
+              {isEdit ? "Update Data" : "Tambah Data"}
             </button>
           </div>
         </div>
@@ -244,17 +277,17 @@ export default function Pemasukan() {
           </div>
           ) : (
             <div className="space-y-3">
-              {transaksi.map((item) => (
+              {currentData.map((item) => (
                 <div
-                  key={item.id}
-                  onClick={() => setSelectedId(item.id)}
-                  className={`flex justify-between items-center px-5 py-4 rounded-xl cursor-pointer transition border ${
-                    selectedId === item.id
-                      ? "bg-[#E6E8FF] border-[#1E1B6D]"
-                      : "bg-white border-[#D1D5DB] hover:border-[#1E1B6D]"
-                  }`}
-                >
-                  <div>
+                key={item.id_keuangan}
+                onClick={() => selectTransaksi(item)}
+                className={`flex justify-between items-center px-5 py-4 rounded-xl cursor-pointer transition border ${
+                  selectedId === item.id_keuangan
+                    ? "bg-[#E6E8FF] border-[#1E1B6D]"
+                    : "bg-white border-[#D1D5DB] hover:border-[#1E1B6D]"
+                }`}
+              >
+                <div>
                   <p className="font-semibold text-[#1E1B6D]">
                     {item.keterangan}
                   </p>
@@ -268,13 +301,48 @@ export default function Pemasukan() {
                   </p>
                 </div>
 
+                <div className="flex items-center gap-4">
+
                   <p className="font-bold text-sm text-[#1E1B6D]">
                     Rp {item.nominal.toLocaleString("id-ID")}
                   </p>
+
+                  {/* lingkaran select */}
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedId === item.id_keuangan
+                        ? "border-[#1E1B6D] bg-[#1E1B6D]"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {selectedId === item.id_keuangan && (
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    )}
+                  </div>
+
                 </div>
+              </div>
               ))}
             </div>
           )}
+
+          {/* UI PAGINATION */}
+          <div className="flex justify-center mt-6 gap-2 flex-wrap">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded-md text-sm border ${
+                currentPage === i + 1
+                  ? "bg-[#1E1B6D] text-white"
+                  : "bg-white text-[#1E1B6D] border-[#1E1B6D]"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+        </div>
 
           <div className="flex justify-end gap-3 mt-auto pt-8">
             <button

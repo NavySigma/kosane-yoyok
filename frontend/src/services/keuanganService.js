@@ -17,7 +17,6 @@ const getToken = () => {
 export const keuanganService = {
 
   async getAll() {
-
     const res = await fetch(`${API}/keuangan`, {
       method: "GET",
       headers: headers(),
@@ -31,7 +30,6 @@ export const keuanganService = {
   },
 
   async store(data) {
-
     const res = await fetch(`${API}/keuangan`, {
       method: "POST",
       headers: headers(),
@@ -46,7 +44,6 @@ export const keuanganService = {
   },
 
   async update(id, data) {
-
     const res = await fetch(`${API}/keuangan/${id}`, {
       method: "PUT",
       headers: headers(),
