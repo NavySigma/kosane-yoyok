@@ -1,153 +1,42 @@
-import { useEffect, useState } from "react";
-import { keuanganService } from "../../services/keuanganService";
+import useKeuangan from "../../hooks/admin/useKeuangan";
 
-export default function Pemasukan() {
-
-  const [transaksi, setTransaksi] = useState([]);
-  const [dashboard, setDashboard] = useState({});
-  const [selectedId, setSelectedId] = useState(null);
-  const [isEdit, setIsEdit] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
-  const [loadingDashboard, setLoadingDashboard] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const dataPerPage = 3;
-
-  const [form, setForm] = useState({
-    keterangan: "",
-    nominal: "",
-  });
-
-  // ================= FETCH KEUANGAN =================
-  const fetchData = async () => {
-    try {
-      setLoadingData(true);
-      const res = await keuanganService.getAll();
-
-      // kalau API return {data:[]}
-      setTransaksi(res.data || res);
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= FETCH DASHBOARD =================
-  const fetchDashboard = async () => {
-  try {
-    setLoadingDashboard(true);
-
-    const res = await keuanganService.getDashboard();
-    setDashboard(res.data || res);
-
-  } catch (err) {
-    console.error(err);
-  }
-  };
-
-  useEffect(() => {
-    fetchData();
-    fetchDashboard();
-  }, []);
-
-  // ================= TOTAL =================
-  const totalPengeluaran = transaksi.reduce(
-    (a, b) => a + Number(b.nominal),
-    0
+function Spinner({ text = "Memuat data..." }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 gap-3">
+      <div className="w-8 h-8 border-4 border-[#E5E7EB] border-t-[#1E1B6D] rounded-full animate-spin"></div>
+      <span className="text-sm text-gray-400">{text}</span>
+    </div>
   );
+}
 
-  // ============= PAGINATION =================
-  const indexLast = currentPage * dataPerPage;
-  const indexFirst = indexLast - dataPerPage;
-  const currentData = transaksi.slice(indexFirst, indexLast);
+export default function Keuangan() {
 
-  const totalPages = Math.ceil(transaksi.length / dataPerPage);
+  const {
+    transaksi,
+    dashboard,
+    selectedId,
+    isEdit,
+    loadingData,
+    loadingDashboard,
+    currentPage,
+    setCurrentPage,
+    form,
+    setForm,
 
-  // ================= SIMPAN =================
-  const handleSimpan = async () => {
+    currentData,
+    totalPages,
+    totalPengeluaran,
+    total,
 
-    if (!form.keterangan || !form.nominal)
-      return alert("Form belum lengkap");
+    handleSimpan,
+    handleEdit,
+    handleUpdate,
+    resetForm,
+    selectTransaksi,
 
-    try {
-
-      await keuanganService.store({
-        keterangan: form.keterangan,
-        nominal: Number(form.nominal.replace(/\./g, "")),
-      });
-
-      await fetchData();
-      await fetchDashboard();
-      resetForm();
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= EDIT =================
-  const handleEdit = () => {
-
-  if (selectedId === null) {
-    alert("Pilih data dulu");
-    return;
-  }
-
-  const data = transaksi.find((t) => t.id_keuangan === selectedId);
-
-  if (!data) return;
-
-  setForm({
-    keterangan: data.keterangan,
-    nominal: new Intl.NumberFormat("id-ID").format(data.nominal),
-  });
-
-  setIsEdit(true);
-};
-
-  // ================= UPDATE =================
-  const handleUpdate = async () => {
-
-    try {
-
-      await keuanganService.update(selectedId, {
-        keterangan: form.keterangan,
-        nominal: Number(form.nominal.replace(/\./g, "")),
-      });
-
-      await fetchData();
-      await fetchDashboard();
-      resetForm();
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= RESET =================
-  const resetForm = () => {
-
-    setForm({
-      keterangan: "",
-      nominal: "",
-    });
-
-    setSelectedId(null);
-    setIsEdit(false);
-  };
-
-  const selectTransaksi = (item) => {
-    setSelectedId(item.id_keuangan);
-  };
+  } = useKeuangan();
 
   const nominal = totalPengeluaran.toLocaleString("id-ID");
-
-  const total =
-  Number(dashboard.pemasukan || 0) - Number(totalPengeluaran || 0);
-
-  const formatRupiah = (value) => {
-  const number = value.replace(/\D/g, "");
-  return new Intl.NumberFormat("id-ID").format(number);
-  };
 
   return (
     <div className="min-h-screen bg-[#f1f1f1] p-35 pt-20">
@@ -159,6 +48,11 @@ export default function Pemasukan() {
           {/* SUMMARY */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
 
+            {loadingDashboard ? (
+              <Spinner text="Memuat dashboard..." />
+            ) : (
+
+              <>
           <div className="flex items-center justify-between">
 
             <div className="flex-1 text-center">
@@ -204,6 +98,8 @@ export default function Pemasukan() {
               Rp {total.toLocaleString("id-ID")}
             </h2>
           </div>
+            </>
+            )}
         </div>
 
           {/* FORM */}
@@ -257,7 +153,13 @@ export default function Pemasukan() {
             Riwayat Pengeluaran
           </h3>
 
-          {transaksi.length === 0 ? (
+          {loadingData ? (
+
+            <div className="flex items-center justify-center flex-1">
+              <Spinner text="Memuat data pengeluaran..." />
+            </div>
+
+          ) : transaksi.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             
             <img
@@ -328,21 +230,20 @@ export default function Pemasukan() {
 
           {/* UI PAGINATION */}
           <div className="flex justify-center mt-6 gap-2 flex-wrap">
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded-md text-sm border ${
-                currentPage === i + 1
-                  ? "bg-[#1E1B6D] text-white"
-                  : "bg-white text-[#1E1B6D] border-[#1E1B6D]"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-        </div>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded-md text-sm border ${
+                  currentPage === i + 1
+                    ? "bg-[#1E1B6D] text-white"
+                    : "bg-white text-[#1E1B6D] border-[#1E1B6D]"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
 
           <div className="flex justify-end gap-3 mt-auto pt-8">
             <button

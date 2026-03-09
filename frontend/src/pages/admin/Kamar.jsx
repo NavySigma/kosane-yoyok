@@ -1,57 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useKamar } from "../../hooks/admin/useKamar";
 import RoomCard from "../../components/RoomCard";
 
 const Kamar = () => {
 
-  const { rooms, loading, addRoom, editRoom } = useKamar();
+  const {
+    rooms,
+    loading,
 
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    selectedRoom,
+    isEditModalOpen,
+    isAddModalOpen,
 
-  const [formData, setFormData] = useState({
-    nomor_kamar: "",
-    harga_kamar_perbulan: "",
-    fasilitas_kamar: "",
-    fasilitas_bersama: ""
-  });
+    formData,
+    setFormData,
 
-  useEffect(() => {
-    if (selectedRoom) {
+    currentPage,
+    setCurrentPage,
+    currentData,
+    totalPages,
 
-      const fasilitasKamar = selectedRoom.fasilitas
-        ?.filter(f => f.tipe === "kamar")
-        .map(f => f.nama_fasilitas)
-        .join("\n");
+    openAddModal,
+    openEditModal,
+    closeModal,
 
-      const fasilitasBersama = selectedRoom.fasilitas
-        ?.filter(f => f.tipe === "bersama")
-        .map(f => f.nama_fasilitas)
-        .join("\n");
+    addRoom,
+    updateRoom
 
-      setFormData({
-        nomor_kamar: selectedRoom.nomor_kamar,
-        harga_kamar_perbulan: selectedRoom.harga_kamar_perbulan,
-        fasilitas_kamar: fasilitasKamar || "",
-        fasilitas_bersama: fasilitasBersama || ""
-      });
-    }
-  }, [selectedRoom]);
-
-  const handleTambah = async () => {
-    await addRoom(formData);
-    setIsAddModalOpen(false);
-  };
-
-  const handleUpdate = async () => {
-    await editRoom(selectedRoom.id_kamar, formData);
-    setIsEditModalOpen(false);
-    setSelectedRoom(null);
-  };
+  } = useKamar();
 
   return (
-  <div className="pt-28 pb-12 px-6 max-w-[1400px] mx-auto min-h-screen">
+  <div className="pt-20 pb-12 px-6 max-w-[1400px] mx-auto min-h-screen">
 
     {/* HEADER */}
     <div className="flex justify-between items-center mb-8">
@@ -63,15 +42,7 @@ const Kamar = () => {
       </div>
 
       <button
-        onClick={() => {
-          setFormData({
-            nomor_kamar: "",
-            harga_kamar_perbulan: "",
-            fasilitas_kamar: "",
-            fasilitas_bersama: ""
-          });
-          setIsAddModalOpen(true);
-        }}
+        onClick={openAddModal}
         className="bg-green-600 hover:bg-[#3ecf73] text-white px-6 py-3 rounded-full font-bold text-xs shadow-md transition-all"
       >
         + Tambah Kamar
@@ -79,24 +50,39 @@ const Kamar = () => {
     </div>
 
     {loading ? (
-  <div className="flex justify-center py-20">
-    <div className="w-8 h-8 border-4 border-gray-200 border-t-[#1E1B6D] rounded-full animate-spin"></div>
-  </div>
-) : (
-    <div className="grid grid-cols-5 gap-4">
-      {rooms.map((room, index) => (
-        <RoomCard
-          key={room.id_kamar}
-          room={room}
-          isSelected={selectedRoom?.id_kamar === room.id_kamar}
-          onEdit={(room) => {
-            setSelectedRoom(room);
-            setIsEditModalOpen(true);
-          }}
-        />
-      ))}
-    </div>
-)}
+      <div className="flex justify-center py-20">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-[#1E1B6D] rounded-full animate-spin"></div>
+      </div>
+    ) : (
+      <>
+      <div className="grid grid-cols-5 gap-4">
+        {currentData.map((room) => (
+          <RoomCard
+            key={room.id_kamar}
+            room={room}
+            isSelected={selectedRoom?.id_kamar === room.id_kamar}
+            onEdit={openEditModal}
+          />
+        ))}
+      </div>
+
+      <div className="flex justify-center mt-6 gap-2 flex-wrap">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`px-3 py-1 rounded-md text-sm border ${
+              currentPage === i + 1
+                ? "bg-[#1E1B6D] text-white"
+                : "bg-white text-[#1E1B6D] border-[#1E1B6D]"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+      </>
+    )}
 
     {/* MODAL EDIT */}
     {isEditModalOpen && (
@@ -148,18 +134,22 @@ const Kamar = () => {
               <input
                 type="text"
                 className="w-full border-2 border-gray-100 rounded-xl p-3 text-xl font-bold text-green-600"
-                value={formData.harga_kamar_perbulan}
-                onChange={(e) =>
+                value={formData.harga_kamar_perbulan ? `Rp ${formData.harga_kamar_perbulan}` : ""}
+                placeholder="Rp 0"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  const formatted = new Intl.NumberFormat("id-ID").format(value);
+
                   setFormData({
                     ...formData,
-                    harga_kamar_perbulan: e.target.value
-                  })
-                }
+                    harga_kamar_perbulan: formatted
+                  });
+                }}
               />
             </section>
 
             <button
-              onClick={handleUpdate}
+              onClick={updateRoom}
               className="w-full bg-green-600 text-white font-bold py-3 rounded-full text-base"
             >
               Simpan
@@ -169,7 +159,7 @@ const Kamar = () => {
 
         <div
           className="absolute inset-0 -z-10"
-          onClick={() => setIsEditModalOpen(false)}
+          onClick={closeModal}
         ></div>
       </div>
     )}
@@ -263,18 +253,23 @@ const Kamar = () => {
               <input
                 type="text"
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-bold text-green-600"
-                value={formData.harga_kamar_perbulan}
-                onChange={(e) =>
+                value={formData.harga_kamar_perbulan ? `Rp ${formData.harga_kamar_perbulan}` : ""}
+                placeholder="Rp 0"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+
+                  const formatted = new Intl.NumberFormat("id-ID").format(value);
+
                   setFormData({
                     ...formData,
-                    harga_kamar_perbulan: e.target.value
-                  })
-                }
+                    harga_kamar_perbulan: formatted
+                  });
+                }}
               />
             </section>
 
             <button
-              onClick={handleTambah}
+              onClick={addRoom}
               className="w-full bg-green-600 text-white font-bold py-3.5 rounded-full text-base"
             >
               Tambah Kamar
@@ -285,7 +280,7 @@ const Kamar = () => {
 
         <div
           className="absolute inset-0 -z-10"
-          onClick={() => setIsAddModalOpen(false)}
+          onClick={closeModal}
         ></div>
       </div>
     )}
