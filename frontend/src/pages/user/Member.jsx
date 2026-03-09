@@ -1,4 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
+
+// 1. Perbaikan Path Import (Relative Path)
+import { translations } from "../../utils/translations"; 
+import { useLang } from "../../context/LanguageContext";
+
 import {
   ChevronDown,
   Calendar,
@@ -24,10 +29,10 @@ import {
   Settings,
 } from "lucide-react";
 
-
-
-
 export default function MemberPage() {
+  // 2. Inisialisasi Hook Language
+  const { lang, setLang, t } = useLang();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState("booking");
@@ -43,9 +48,9 @@ export default function MemberPage() {
     catatan: "",
   });
 
-  // ================= LOGIC: LOGOUT =================
+  // 3. Update Fungsi Logout dengan Terjemahan
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Apakah Anda yakin ingin keluar?");
+    const confirmLogout = window.confirm(t('logout_confirm'));
     if (confirmLogout) {
       localStorage.removeItem("token");
       localStorage.removeItem("user_data");
@@ -128,7 +133,9 @@ export default function MemberPage() {
       },
       { threshold: 0.1 },
     );
+
     elements.forEach((el) => observer.observe(el));
+
     return () => observer.disconnect();
   }, [galleryImages.length]);
 
@@ -151,6 +158,7 @@ export default function MemberPage() {
           ...formSurvei,
         }),
       });
+
       if (response.ok) {
         alert("Request visit berhasil dikirim!");
         setFormSurvei({ nama_pesurvei: "", tgl_survei: "", catatan: "" });
@@ -159,6 +167,8 @@ export default function MemberPage() {
       console.error(error);
     }
   };
+
+  // --- Bagian Return akan lanjut setelah ini ---
 
   return (
     <div
