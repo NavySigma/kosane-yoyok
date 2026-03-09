@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
 // 1. Perbaikan Path Import (Relative Path)
-import { translations } from "../../utils/translations"; 
 import { useLang } from "../../context/LanguageContext";
 
 import {

@@ -11,12 +11,12 @@ use App\Http\Controllers\Member\DashboardController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum','role:user'])->group(function () {
 
     Route::post('/survei', [DashboardController::class, 'survei']);
+});
 
-
-    
+Route::middleware(['auth:sanctum','role:admin'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
