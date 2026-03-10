@@ -25,13 +25,13 @@ class RiwayatController extends Controller
                     : '-';
 
                 // Logika: Penghuni Lama (Berdasarkan status_pembayaran 'selesai')
-                if ($item->status_pembayaran === 'lunas') {
+                if ($item->sewa->is_active === 0) {
                     return [
                         'id' => 'OLD-' . $item->id_sewadetail,
                         'tanggal' => $item->updated_at->toDateString(),
                         'kamar' => $nomorKamar,
                         'penyewa' => $namaPenyewa,
-                        'status' => 'Selesai',
+                        'status' => 'Check-Out',
                         'kategori' => 'lama',
                         'keterangan' => 'Masa sewa berakhir / Check-out'
                     ];
@@ -80,11 +80,12 @@ class RiwayatController extends Controller
         });
 
         // 3. GABUNGKAN SEMUA DATA DAN BERSIHKAN NILAI NULL
-        $koleksiRiwayat = $dataSewa->concat($dataSurvei)
-            ->filter() // Menghapus data booking yang null (kedaluwarsa)
-            ->values()
-            ->sortByDesc('tanggal'); // Urutkan berdasarkan tanggal terbaru
+       $koleksiRiwayat = $dataSewa
+    ->concat($dataSurvei)
+    ->filter()
+    ->sortByDesc('tanggal')
+    ->values();
 
-        return response()->json($koleksiRiwayat);
+return response()->json($koleksiRiwayat);
     }
 }
