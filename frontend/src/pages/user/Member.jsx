@@ -28,18 +28,36 @@ import {
   Settings,
 } from "lucide-react";
 
+// ✅ FIX: Helper untuk ambil data user dari localStorage
+const getUserData = () => {
+  try {
+    const raw = localStorage.getItem("user_data");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+// ✅ FIX: Base URL API — ubah sesuai environment kamu
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 export default function MemberPage() {
   // 2. Inisialisasi Hook Language
   const { lang, setLang, t } = useLang();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [activeAccordion, setActiveAccordion] = useState("booking");
+  const [activeAccordion, setActiveAccordion] = useState("visit");
   const [activeDot, setActiveDot] = useState(0);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const scrollRef = useRef(null);
   const [activeModal, setActiveModal] = useState(null); // 'profile' | 'settings' | null
+
+  // ✅ FIX: State untuk feedback survei
+  const [surveiLoading, setSurveiLoading] = useState(false);
+  const [surveiError, setSurveiError] = useState(null);
+  const [surveiSuccess, setSurveiSuccess] = useState(false);
 
   const [formSurvei, setFormSurvei] = useState({
     nama_pesurvei: "",
@@ -47,9 +65,13 @@ export default function MemberPage() {
     catatan: "",
   });
 
+  // ✅ FIX: Ambil data user dari localStorage
+  const userData = getUserData();
+  const profileId = userData?.id_profile || userData?.id || null;
+
   // 3. Update Fungsi Logout dengan Terjemahan
   const handleLogout = () => {
-    const confirmLogout = window.confirm(t('logout_confirm'));
+    const confirmLogout = window.confirm(t("logout_confirm"));
     if (confirmLogout) {
       localStorage.removeItem("token");
       localStorage.removeItem("user_data");
@@ -62,6 +84,9 @@ export default function MemberPage() {
       ...formSurvei,
       [e.target.name]: e.target.value,
     });
+    // Reset pesan error/sukses saat user mengetik
+    setSurveiError(null);
+    setSurveiSuccess(false);
   };
 
   const waNumber = "6285708128392";
@@ -142,32 +167,84 @@ export default function MemberPage() {
     setActiveAccordion(activeAccordion === id ? null : id);
   };
 
+  // ✅ FIX UTAMA: submitSurvei yang benar
   const submitSurvei = async () => {
+    // Validasi: pastikan user sudah login dan profileId tersedia
+    if (!profileId) {
+      setSurveiError("Sesi login tidak valid. Silakan login ulang.");
+      return;
+    }
+
+    // Validasi field wajib
+    if (!formSurvei.nama_pesurvei.trim()) {
+      setSurveiError("Nama pesurvei wajib diisi.");
+      return;
+    }
+    if (!formSurvei.tgl_survei) {
+      setSurveiError("Tanggal survei wajib diisi.");
+      return;
+    }
+
+    setSurveiLoading(true);
+    setSurveiError(null);
+    setSurveiSuccess(false);
+
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://127.0.0.1:8000/api/survei", {
+
+      // ✅ FIX: Gunakan profileId dari user yang login, bukan hardcode 1
+      const payload = {
+        id_profile_survei: profileId,
+        status_survei: "pending",
+        nama_pesurvei: formSurvei.nama_pesurvei.trim(),
+        tgl_survei: formSurvei.tgl_survei,
+        catatan: formSurvei.catatan || null,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/survei`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // ✅ FIX: Sertakan Authorization header dengan token
           Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
-        body: JSON.stringify({
-          id_profile_survei: 1,
-          status_survei: "pending",
-          ...formSurvei,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        alert("Request visit berhasil dikirim!");
-        setFormSurvei({ nama_pesurvei: "", tgl_survei: "", catatan: "" });
+      // ✅ FIX: Handle response error dengan benar
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+
+        // Jika 401 Unauthorized, redirect ke login
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user_data");
+          window.location.href = "/login";
+          return;
+        }
+
+        // Tampilkan pesan error dari server (validasi Laravel)
+        const errorMessage =
+          errorData?.message ||
+          (errorData?.errors
+            ? Object.values(errorData.errors).flat().join(", ")
+            : `Gagal mengirim request (${response.status})`);
+
+        throw new Error(errorMessage);
       }
+
+      // ✅ Sukses
+      setSurveiSuccess(true);
+      setFormSurvei({ nama_pesurvei: "", tgl_survei: "", catatan: "" });
     } catch (error) {
-      console.error(error);
+      setSurveiError(error.message || "Terjadi kesalahan. Coba lagi.");
+    } finally {
+      setSurveiLoading(false);
     }
   };
 
-  // --- Bagian Return akan lanjut setelah ini ---
+  // --- Bagian Return ---
 
   return (
     <div
@@ -245,10 +322,10 @@ export default function MemberPage() {
                 }`}
               >
                 <div className="w-5 h-5 bg-[#B6FF40] rounded-full flex items-center justify-center text-[9px] font-black text-black">
-                  M
+                  {userData?.nama_profile?.[0]?.toUpperCase() || "M"}
                 </div>
                 <span className="text-[10px] font-bold tracking-tight uppercase">
-                  Member
+                  {userData?.nama_profile || "Member"}
                 </span>
                 <ChevronDown
                   size={12}
@@ -270,7 +347,9 @@ export default function MemberPage() {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       Signed in as
                     </p>
-                    <p className="text-xs font-black truncate">member</p>
+                    <p className="text-xs font-black truncate">
+                      {userData?.nama_profile || "member"}
+                    </p>
                   </div>
                   <div
                     className={`h-[1px] mb-1 ${darkMode ? "bg-white/5" : "bg-gray-100"}`}
@@ -342,7 +421,6 @@ export default function MemberPage() {
                 : "bg-white border-gray-100"
             } rounded-3xl p-6 shadow-2xl flex flex-col gap-2 md:hidden animate-in fade-in zoom-in-95 z-[110]`}
           >
-            {/* Navigation Links */}
             <div className="flex flex-col gap-4 mb-2">
               {["home", "features", "tour", "booking"].map((item) => (
                 <a
@@ -360,7 +438,6 @@ export default function MemberPage() {
               ))}
             </div>
 
-            {/* User Section (Profile & Settings) */}
             <div className={`mt-2 pt-2 flex flex-col gap-1`}>
               <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 px-1">
                 Account Actions
@@ -616,13 +693,42 @@ export default function MemberPage() {
                     : "bg-white border-gray-200 focus:border-black"
                 }`}
               />
+
+              {/* ✅ FIX: Tampilkan pesan error */}
+              {surveiError && (
+                <div className="flex items-start gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium">
+                  <X size={16} className="mt-0.5 flex-shrink-0" />
+                  <span>{surveiError}</span>
+                </div>
+              )}
+
+              {/* ✅ FIX: Tampilkan pesan sukses */}
+              {surveiSuccess && (
+                <div className="flex items-start gap-3 p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-green-500 text-sm font-medium">
+                  <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0" />
+                  <span>Request kunjungan berhasil dikirim! Kami akan segera menghubungi kamu.</span>
+                </div>
+              )}
+
               <button
                 onClick={submitSurvei}
-                className={`w-full py-4 font-bold rounded-2xl text-sm transition active:scale-[0.98] ${
+                disabled={surveiLoading}
+                className={`w-full py-4 font-bold rounded-2xl text-sm transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
                   darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"
                 }`}
               >
-                Request Visit
+                {surveiLoading ? (
+                  <>
+                    {/* Spinner sederhana */}
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Mengirim...
+                  </>
+                ) : (
+                  "Request Visit"
+                )}
               </button>
             </div>
           )}
@@ -835,14 +941,14 @@ export default function MemberPage() {
                     className={`flex items-center gap-5 p-5 rounded-[32px] ${darkMode ? "bg-white/5 border border-white/5" : "bg-gray-50 border border-gray-100"}`}
                   >
                     <div className="w-20 h-20 bg-[#B6FF40] rounded-3xl flex items-center justify-center text-3xl font-black text-black shadow-lg shadow-[#B6FF40]/20">
-                      M
+                      {userData?.nama_profile?.[0]?.toUpperCase() || "M"}
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-[#B6FF40] uppercase tracking-[0.2em] mb-1">
                         Platinum Member
                       </p>
                       <p className="text-xl font-black tracking-tight uppercase">
-                        Member Kost
+                        {userData?.nama_profile || "Member Kost"}
                       </p>
                       <p className="text-xs font-medium opacity-50">
                         Since January 2024
@@ -851,10 +957,10 @@ export default function MemberPage() {
                   </div>
                   <div className="space-y-4">
                     {[
-                      { label: "Full Name", value: "Member Kost Pak Yoyok" },
-                      { label: "Email Address", value: "member@kostyoyok.com" },
-                      { label: "Room Number", value: "A-03 (2nd Floor)" },
-                      { label: "Phone Number", value: "+62 812-3456-7890" },
+                      { label: "Full Name", value: userData?.nama_profile || "Member Kost Pak Yoyok" },
+                      { label: "Email Address", value: userData?.email || "member@kostyoyok.com" },
+                      { label: "Room Number", value: userData?.no_kamar || "A-03 (2nd Floor)" },
+                      { label: "Phone Number", value: userData?.no_telp_profile || "+62 812-3456-7890" },
                     ].map((info, i) => (
                       <div key={i} className="group">
                         <p className="text-[10px] font-bold text-gray-500 uppercase ml-1 mb-1.5 tracking-widest">

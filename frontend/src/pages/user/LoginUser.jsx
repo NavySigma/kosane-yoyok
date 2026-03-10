@@ -1,73 +1,9 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import useLoginUser from "../../hooks/member/useLogin";
 
 export default function Login() {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-  
-  // State untuk mengontrol visibilitas password
-  const [showPassword, setShowPassword] = useState(false);
-  
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setError("");
-    setSuccess("");
-  };
-
-  // Fungsi untuk toggle visibilitas password
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { username, password } = formData;
-    if (!username || !password) {
-      setError("Username dan password wajib diisi.");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify({
-          nama_profile: username,
-          password: password,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Login gagal");
-        return;
-      }
-
-      if (data.data.level_profile !== 'user') {
-        setError('Akun ini bukan member. Silakan login di halaman admin.');
-        return;
-      }
-
-      setSuccess("Login berhasil!");
-      localStorage.setItem("isLogin", "true");
-      localStorage.setItem("user", JSON.stringify(data.data));
-      setTimeout(() => navigate("/member"), 1200);
-    } catch (err) {
-      setError("Server error, silakan coba lagi nanti.");
-    }
-  };
+  const { formData, status, showPassword, handleChange, handleSubmit, togglePasswordVisibility } = useLoginUser();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#D1D1C7] font-sans p-4">
@@ -157,8 +93,11 @@ export default function Login() {
 
             {/* Feedback Message */}
             <div className="h-4 flex items-center justify-center">
-              {error && <p className="text-red-500 text-[11px] font-bold text-center">{error}</p>}
-              {success && <p className="text-green-600 text-[11px] font-bold text-center">{success}</p>}
+              {status.message && (
+                <p className={`text-[11px] font-bold text-center ${status.type === "error" ? "text-red-500" : "text-green-600"}`}>
+                  {status.message}
+                </p>
+              )}
             </div>
 
             {/* Tombol Login */}
