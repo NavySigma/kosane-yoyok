@@ -18,7 +18,25 @@ class DashboardController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
+        // ✅ cek apakah user sudah pernah buat survei
+        $existing = Survei::where('id_profile_survei', $validated['id_profile_survei'])->first();
+
+        if ($existing) {
+            return response()->json([
+                'message' => 'Kamu sudah pernah membuat request survei.',
+                'data' => $existing
+            ], 409);
+        }
+
         $survei = Survei::create($validated);
+
         return response()->json($survei, 201);
+    }
+
+    public function mySurvei($profileId)
+    {
+        $survei = Survei::where('id_profile_survei', $profileId)->first();
+
+        return response()->json($survei);
     }
 }

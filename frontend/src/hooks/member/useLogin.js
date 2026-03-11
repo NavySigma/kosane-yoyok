@@ -31,9 +31,12 @@ export default function useLoginUser() {
 
     try {
       const user = await loginUser(formData.username, formData.password);
+      
       setStatus({ type: "success", message: "Login berhasil! Mengalihkan..." });
-      localStorage.setItem("token", user.token);
-      localStorage.setItem("user_data", JSON.stringify(user)); // ✅ pakai user_data agar MemberPage bisa baca
+
+      localStorage.setItem("isLogin", "true");
+      localStorage.setItem("user", JSON.stringify(user));
+      
       setTimeout(() => navigate("/member"), 1500);
     } catch (err) {
       setStatus({ type: "error", message: err.message || "Koneksi ke server terputus." });

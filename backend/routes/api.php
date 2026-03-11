@@ -14,6 +14,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware(['auth:sanctum','role:user'])->group(function () {
 
     Route::post('/survei', [DashboardController::class, 'survei']);
+    Route::get('/survei/profile/{id}', [DashboardController::class, 'mySurvei']);
+
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
 
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {

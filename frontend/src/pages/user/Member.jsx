@@ -58,6 +58,7 @@ export default function MemberPage() {
   const [surveiLoading, setSurveiLoading] = useState(false);
   const [surveiError, setSurveiError] = useState(null);
   const [surveiSuccess, setSurveiSuccess] = useState(false);
+  const [userSurvei, setUserSurvei] = useState(null);
 
   const [formSurvei, setFormSurvei] = useState({
     nama_pesurvei: "",
@@ -68,16 +69,6 @@ export default function MemberPage() {
   // ✅ FIX: Ambil data user dari localStorage
   const userData = getUserData();
   const profileId = userData?.id_profile || userData?.id || null;
-
-  // 3. Update Fungsi Logout dengan Terjemahan
-  const handleLogout = () => {
-    const confirmLogout = window.confirm(t("logout_confirm"));
-    if (confirmLogout) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user_data");
-      window.location.href = "/login";
-    }
-  };
 
   const handleChange = (e) => {
     setFormSurvei({
@@ -141,6 +132,36 @@ export default function MemberPage() {
     const index = Math.round(relativeScroll / (offsetWidth * 0.8));
     setActiveDot(index % galleryImages.length);
   };
+
+    useEffect(() => {
+    if (!profileId) return;
+
+    const fetchSurvei = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(
+          `${API_BASE_URL}/api/survei/profile/${profileId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        const data = await res.json();
+
+        if (data) {
+          setUserSurvei(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSurvei();
+  }, [profileId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -388,7 +409,10 @@ export default function MemberPage() {
                   ></div>
 
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                      localStorage.clear();
+                      navigate("/login");
+                    }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/10 transition"
                   >
                     <LogOut size={14} /> Logout
@@ -474,7 +498,10 @@ export default function MemberPage() {
               ></div>
 
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  localStorage.clear();
+                  navigate("/login");
+                }}
                 className="flex items-center gap-3 font-bold text-red-500 uppercase text-sm tracking-widest p-3 rounded-2xl hover:bg-red-500/10 transition"
               >
                 <LogOut size={18} />
@@ -712,10 +739,11 @@ export default function MemberPage() {
 
               <button
                 onClick={submitSurvei}
-                disabled={surveiLoading}
-                className={`w-full py-4 font-bold rounded-2xl text-sm transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                  darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"
-                }`}
+                disabled={surveiLoading || userSurvei}
+                className={`w-full py-4 font-bold rounded-2xl text-sm transition
+                ${userSurvei ? "bg-gray-400 cursor-not-allowed" :
+                darkMode ? "bg-[#B6FF40] text-black" : "bg-black text-white"}
+                `}
               >
                 {surveiLoading ? (
                   <>
@@ -730,6 +758,23 @@ export default function MemberPage() {
                   "Request Visit"
                 )}
               </button>
+              {userSurvei && (
+                <div className="mt-6 p-4 rounded-2xl border border-green-500/20 bg-green-500/10">
+                  <p className="text-sm font-bold mb-2">Survei kamu sudah terdaftar</p>
+
+                  <p className="text-xs">
+                    Nama: <b>{userSurvei.nama_pesurvei}</b>
+                  </p>
+
+                  <p className="text-xs">
+                    Tanggal: <b>{userSurvei.tgl_survei}</b>
+                  </p>
+
+                  <p className="text-xs">
+                    Status: <b>{userSurvei.status_survei}</b>
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

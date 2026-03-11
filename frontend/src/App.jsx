@@ -20,6 +20,7 @@ import RegisterUser from "./pages/user/RegisterUser";
 
 /* ================= LAYOUT & GUARD ================= */
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Cursor from "./components/Cursor";
 
@@ -54,9 +55,9 @@ export default function App() {
         {/* ================= ADMIN (PROTECTED DASHBOARD) ================= */}
         <Route
           element={
-            <ProtectedRoute>
+            <AdminProtectedRoute>
               <DashboardLayout />
-            </ProtectedRoute>
+            </AdminProtectedRoute>
           }
         >
           <Route path="/admin/dashboard" element={<Dashboard />} />

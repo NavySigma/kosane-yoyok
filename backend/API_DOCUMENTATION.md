@@ -16,10 +16,11 @@ Base URL Default: `http://localhost:8000/api`
 
 ## 1. Authentication
 
-### 1.1 Login Admin
+
+### 1.1 Login
 - **URL:** `/api/login`
 - **Method:** `POST`
-- **Description:** Login admin berdasarkan `nama_profile` dan `password`.
+- **Description:** Login berdasarkan `nama_profile` dan `password`.
 
 **Request Body**
 | Field | Type | Required | Description |
@@ -31,7 +32,7 @@ Base URL Default: `http://localhost:8000/api`
 ```json
 {
     "nama_profile": "admin",
-    "password": "password123"
+    "password": "123"
 }
 ```
 
@@ -42,7 +43,9 @@ Base URL Default: `http://localhost:8000/api`
     "message": "Login berhasil",
     "data": {
         "id_profile": 1,
-        "nama_profile": "admin"
+        "nama_profile": "admin",
+        "level_profile": "admin",
+        "token": "<token>"
     }
 }
 ```
@@ -55,10 +58,10 @@ Base URL Default: `http://localhost:8000/api`
 }
 ```
 
-### 1.2 Register Admin
+### 1.2 Register
 - **URL:** `/api/register`
 - **Method:** `POST`
-- **Description:** Mendaftarkan admin/pengguna baru.
+- **Description:** Mendaftarkan pengguna baru (level default: user).
 
 **Request Body**
 | Field | Type | Required | Description |
@@ -82,12 +85,80 @@ Base URL Default: `http://localhost:8000/api`
     "status": "success",
     "message": "Register berhasil",
     "data": {
+        "id_profile": 2,
         "nama_profile": "budi",
         "no_telp_profile": "081234567890",
-        "updated_at": "2024-03-01T10:00:00.000000Z",
+        "level_profile": "user",
         "created_at": "2024-03-01T10:00:00.000000Z",
-        "id_profile": 2
+        "updated_at": "2024-03-01T10:00:00.000000Z"
     }
+}
+```
+---
+
+## 6. Survei (Member)
+
+### 6.1 Request Survei
+- **URL:** `/api/member/survei`
+- **Method:** `POST`
+- **Description:** Request survei untuk calon penyewa. Satu user hanya bisa request survei satu kali.
+
+**Request Body**
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id_profile_survei` | Integer | Yes | ID profile user yang request survei |
+| `nama_pesurvei` | String | Yes | Nama calon penyewa |
+| `status_survei` | String | Yes | Status survei (`pending`, `finish`, `expired`) |
+| `tgl_survei` | Date | Yes | Tanggal survei |
+| `catatan` | String | No | Catatan tambahan |
+
+**Example Request**
+```json
+{
+    "id_profile_survei": 2,
+    "nama_pesurvei": "Budi",
+    "status_survei": "pending",
+    "tgl_survei": "2026-03-12",
+    "catatan": "Mau survei kamar 2"
+}
+```
+
+**Success Response (201 Created)**
+```json
+{
+    "id_survei": 1,
+    "id_profile_survei": 2,
+    "nama_pesurvei": "Budi",
+    "status_survei": "pending",
+    "tgl_survei": "2026-03-12",
+    "catatan": "Mau survei kamar 2",
+    "created_at": "2026-03-11T10:00:00.000000Z"
+}
+```
+
+**Error Response (409 Conflict)**
+```json
+{
+    "message": "Kamu sudah pernah membuat request survei.",
+    "data": { ...data survei lama... }
+}
+```
+
+### 6.2 Get Survei User
+- **URL:** `/api/member/survei/{id_profile}`
+- **Method:** `GET`
+- **Description:** Mendapatkan data survei milik user tertentu.
+
+**Success Response (200 OK)**
+```json
+{
+    "id_survei": 1,
+    "id_profile_survei": 2,
+    "nama_pesurvei": "Budi",
+    "status_survei": "pending",
+    "tgl_survei": "2026-03-12",
+    "catatan": "Mau survei kamar 2",
+    "created_at": "2026-03-11T10:00:00.000000Z"
 }
 ```
 
@@ -113,19 +184,19 @@ Base URL Default: `http://localhost:8000/api`
 
 ## 2. Dashboard
 
+
 ### 2.1 Get Summary Dashboard
 - **URL:** `/api/dashboard`
 - **Method:** `GET`
-- **Description:** Mengambil data ringkasan dashboard seperti jumlah sewa aktif per bulan, pemasukan lunas, pengeluaran keseluruhan, dan jumlah kamar tersedia.
+- **Description:** Mengambil data ringkasan dashboard: jumlah sewa aktif per bulan, pemasukan bulan ini, pengeluaran bulan ini, dan jumlah kamar tersedia.
 
 **Success Response (200 OK)**
 ```json
 {
     "sewa_aktif": [
-        {
-            "bulan": "Jan",
-            "total": 2
-        }
+        { "bulan": 1, "total": 2 },
+        { "bulan": 2, "total": 3 },
+        // dst. 1-12
     ],
     "pemasukan": 15000000,
     "pengeluaran": 2000000,
@@ -136,7 +207,6 @@ Base URL Default: `http://localhost:8000/api`
 **Error Response (500 Internal Server Error)**
 ```json
 {
-    "error": true,
     "message": "Pesan error internal database"
 }
 ```
@@ -145,14 +215,35 @@ Base URL Default: `http://localhost:8000/api`
 
 ## 3. Kamar
 
+
 ### 3.1 Get Data Kamar
 - **URL:** `/api/kamar`
 - **Method:** `GET`
-- **Description:** Endpoint controller `index` tersedia tetapi saat ini belum ada logic respons data (`KamarController::index` kosong).
+- **Description:** Mengambil seluruh data kamar beserta fasilitasnya.
+
+**Success Response (200 OK)**
+```json
+{
+    "data": [
+        {
+            "id_kamar": 1,
+            "nomor_kamar": "Kamar 1",
+            "harga_kamar_perbulan": 1500000,
+            "status_kamar": "tersedia",
+            "foto_kamar": ".../kamar1.jpeg",
+            "fasilitas": [
+                { "id_fasilitas": 1, "nama_fasilitas": "AC", "tipe": "kamar" },
+                { "id_fasilitas": 2, "nama_fasilitas": "Wifi", "tipe": "bersama" }
+            ]
+        }
+    ]
+}
+```
 
 ---
 
 ## 4. Penyewa (Sewa Kamar)
+
 
 ### 4.1 Get List Penyewa & Ketersediaan
 - **URL:** `/api/penyewa`
@@ -171,6 +262,8 @@ Base URL Default: `http://localhost:8000/api`
             "nama": "Andi Firmansyah",
             "telp": "081xxx",
             "sewabrpbulan": 3,
+            "metodepembayaran": "transfer",
+            "cicilan": 1500000,
             "catatan": "-"
         }
     },
@@ -276,24 +369,120 @@ Base URL Default: `http://localhost:8000/api`
 
 ---
 
-## 5. Riwayat (History)
 
-### 5.1 Get Riwayat Sewa
-- **URL:** `/api/riwayat`
+## 5. Keuangan
+
+### 5.1 Get List Keuangan
+- **URL:** `/api/keuangan`
 - **Method:** `GET`
-- **Description:** Menampilkan log status penyewaan (Booking, Check-In, Check-Out). Riwayat otomatis membuang log `Booking` jika sudah lewat dari 2 hari. 
+- **Description:** Mengambil seluruh data pengeluaran keuangan (diurutkan terbaru).
 
 **Success Response (200 OK)**
 ```json
 [
     {
-        "id": 1,
-        "tanggal": "2024-03-01",
+        "id_keuangan": 1,
+        "keterangan": "Beli galon air",
+        "nominal": 50000,
+        "created_at": "2026-03-11T10:00:00.000000Z"
+    },
+    // ...
+]
+```
+
+### 5.2 Tambah Data Keuangan
+- **URL:** `/api/keuangan`
+- **Method:** `POST`
+- **Description:** Menambah data pengeluaran keuangan.
+
+**Request Body**
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `keterangan` | String | Yes | Keterangan pengeluaran |
+| `nominal` | Integer | Yes | Nominal pengeluaran |
+
+**Example Request**
+```json
+{
+    "keterangan": "Beli galon air",
+    "nominal": 50000
+}
+```
+
+**Success Response (200 OK)**
+```json
+{
+    "message": "Pengeluaran berhasil ditambahkan",
+    "data": {
+        "id_keuangan": 1,
+        "keterangan": "Beli galon air",
+        "nominal": 50000,
+        "created_at": "2026-03-11T10:00:00.000000Z"
+    }
+}
+```
+
+### 5.3 Update Data Keuangan
+- **URL:** `/api/keuangan/{id}`
+- **Method:** `PUT`
+- **Description:** Memperbarui data pengeluaran keuangan berdasarkan ID.
+
+**Request Body**
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `keterangan` | String | Yes | Keterangan pengeluaran |
+| `nominal` | Integer | Yes | Nominal pengeluaran |
+
+**Example Request**
+```json
+{
+    "keterangan": "Beli galon air (update)",
+    "nominal": 60000
+}
+```
+
+**Success Response (200 OK)**
+```json
+{
+    "message": "Data berhasil diupdate"
+}
+```
+
+
+### 5.1 Get Riwayat Sewa
+- **URL:** `/api/riwayat`
+- **Method:** `GET`
+- **Description:** Menampilkan log status penyewaan (Booking, Check-In, Check-Out). Riwayat otomatis membuang log `Booking` jika sudah lewat dari 2 hari.
+
+**Success Response (200 OK)**
+```json
+[
+    {
+        "id": "ACT-12",
+        "tanggal": "2026-03-11",
         "kamar": "Kamar-1",
         "penyewa": "Siti Aminah",
         "status": "Check-In",
-        "kategori": "pemilik",
+        "kategori": "aktif",
         "keterangan": "Sewa bulanan baru"
+    },
+    {
+        "id": "BKG-13",
+        "tanggal": "2026-03-10",
+        "kamar": "Kamar-2",
+        "penyewa": "Budi",
+        "status": "Booking",
+        "kategori": "booking",
+        "keterangan": "Reservasi sementara (Maks. 2 hari)"
+    },
+    {
+        "id": "OLD-14",
+        "tanggal": "2026-03-01",
+        "kamar": "Kamar-3",
+        "penyewa": "Andi",
+        "status": "Check-Out",
+        "kategori": "lama",
+        "keterangan": "Masa sewa berakhir / Check-out"
     }
 ]
 ```
